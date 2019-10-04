@@ -57,6 +57,8 @@ using namespace std;
 #define pzherk     FC_FUNC(pzherk, PZHERK)
 #define pdsyr      FC_FUNC(pdsyr, PDSYR)
 #define pdger      FC_FUNC(pdger, PDGER)
+#define pzgerc 	   FC_FUNC(pzgerc, PZGERC)
+#define pzgeru	   FC_FUNC(pzgeru, PZGERU)
 #define pdgemr2d   FC_FUNC(pdgemr2d, PDGEMR2D)
 #define pzgemr2d   FC_FUNC(pzgemr2d, PZGEMR2D)
 #define pdtrmm     FC_FUNC(pdtrmm, PDTRMM)
@@ -163,6 +165,14 @@ extern "C"
        const double*, const int*, const int*, const int*, const int*,
        const double*, const int*, const int*, const int*, const int*,
        double*, const int*, const int*, const int*);
+  void pzgerc(const int*, const int*, const complex<double>*,
+       const complex<double>*, const int*, const int*, const int*, const int*,
+       const complex<double>*, const int*, const int*, const int*, const int*,
+       complex<double>*, const int*, const int*, const int*);
+  void pzgeru(const int*, const int*, const complex<double>*,
+       const complex<double>*, const int*, const int*, const int*, const int*,
+       const complex<double>*, const int*, const int*, const int*, const int*,
+       complex<double>*, const int*, const int*, const int*);
   void pdsyr(const char*, const int*, 
        const double*, const double*, const int*, const int*, const int*,
        const int*, double*, const int*, const int*, const int*);
@@ -1369,6 +1379,38 @@ void DoubleMatrix::ger(double alpha,
   dger(&m_,&n_,&alpha,&x.val[kx*x.m()],&incx,
                       &y.val[ky*y.m()],&incy,val,&m_);
 #endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//// rank-1 update using row kx of x and (row ky of y)^T
+//// *this = *this + alpha * x(kx) * y(ky)^T
+void ComplexMatrix::zger(complex<double> alpha,
+  const ComplexMatrix& x, int kx, const ComplexMatrix& y, int ky)
+{
+  assert(x.n()==m_);
+  assert(y.n()==n_);
+
+#if SCALAPACK
+  int ione=1;
+
+  int ix = kx+1;
+  int jx = 1;
+  int incx = x.m();
+
+  int iy = ky+1;
+  int jy = 1;
+  int incy = y.m();
+  pzgerc(&m_,&n_,&alpha,x.val,&ix,&jx,x.desc_,&incx,
+                       y.val,&iy,&jy,y.desc_,&incy,
+                       val,&ione,&ione,desc_);
+#else
+
+  int incx = x.m();
+  int incy = y.m();
+  zger(&m_,&n_,&alpha,&x.val[kx*x.m()],&incx,
+                      &y.val[ky*y.m()],&incy,val,&m_);
+#endif
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

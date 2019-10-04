@@ -212,6 +212,9 @@ class DoubleMatrix
     void ger(double alpha, const DoubleMatrix& x, int kx,
                            const DoubleMatrix& y, int ky);
 
+
+    void zger(complex<double> alpha, const ComplexMatrix& x, int kx,
+                            const ComplexMatrix& y, int ky);
     // symmetric rank-1 update
     void syr(char uplo, double alpha, const DoubleMatrix& x,
              int ix, char rowcol);
@@ -465,6 +468,9 @@ class ComplexMatrix
                                      const ComplexMatrix& y,int ky);
     void gerc(complex<double> alpha, const ComplexMatrix& x,int kx,
                                      const ComplexMatrix& y,int ky);
+
+    void zger(std::complex<double> alpha, const ComplexMatrix& x,int kx,
+                                        const ComplexMatrix& y, int ky);
 
     // symmetric rank-1 update
     void her(char uplo, complex<double> alpha, 
