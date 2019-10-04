@@ -18,6 +18,7 @@ noinst_HEADERS =                            \
 	Ecut.h                              \
 	Ecutprec.h                          \
 	Ecuts.h                             \
+	Efield.h			    \ 
 	Emass.h                             \
 	EnthalpyPressure.h                  \
 	EnthalpyThreshold.h                 \
@@ -50,6 +51,7 @@ noinst_HEADERS =                            \
 	Nparallelkpts.h                     \
 	Nrowmax.h                           \
 	Pblock.h                            \
+	Polarization.h			    \
 	RefCell.h                           \
 	RunTimer.h                          \
 	SaveDenFreq.h                       \
