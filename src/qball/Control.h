@@ -137,6 +137,9 @@ struct Control
   double fcp_pmass;
   double fcp_mu;
 
+  D3vector e_field;
+  std::string polarization;
+
   VectorPotential::Dynamics vector_potential_dynamics;
   D3vector initial_vector_potential;
   double laser_freq;
