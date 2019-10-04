@@ -33,16 +33,15 @@
 #include <complex>
 #include <cassert>
 #include <string>
-#include "blas.h"
-#include "Matrix.h"
-#include "D3vector.h"
+#include <math/blas.h>
+#include <math/matrix.h>
+#include <math/d3vector.h>
 #include "Wavefunction.h"
 #include "SlaterDet.h"
 #include "Context.h"
 #include "Sample.h"
 #include "Timer.h"
 #include "Basis.h"
-#include "Matrix.h"
 
 class Sample;
 class MLWFTransform;

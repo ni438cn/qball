@@ -35,10 +35,9 @@
 
 #include "Timer.h"
 #include "Context.h"
-#include "Matrix.h"
-//#include "Matrix.C"
+#include <math/matrix.h>
 #include "Sample.h"
-#include "D3vector.h"
+#include <math/d3vector.h>
 #include "ElectricEnthalpy.h"
 #include "MLWFTransform.h"
 #include "TDMLWFTransform.h"
