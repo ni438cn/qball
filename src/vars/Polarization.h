@@ -33,7 +33,7 @@
 #include<iomanip>
 #include<sstream>
 
-#include "Sample.h"
+#include <qball/Sample.h>
 
 class Polarization: public Var
 {

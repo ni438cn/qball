@@ -33,9 +33,9 @@
 #include<iomanip>
 #include<sstream>
 #include<stdlib.h>
-#include"D3vector.h"
+#include <math/d3vector.h>
 
-#include "Sample.h"
+#include <qball/Sample.h>
 
 class Efield : public Var
 {
