@@ -616,6 +616,13 @@ void BOSampleStepper::step(int niter)
         
         double energy = ef_.energy(s_.wf, false, dwf, compute_forces, fion, compute_stress, sigma_eks);
 
+        if ( onpe0 )
+        {
+          cout << ef_;
+          if ( ef_.el_enth() )
+            cout << *ef_.el_enth();
+        }
+
         // average forces over symmetric atoms
         if ( compute_forces && s_.symmetries.nsym() > 0) {
           const int nsym_ = s_.symmetries.nsym();
