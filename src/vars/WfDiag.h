@@ -56,10 +56,10 @@ class WfDiag : public Var
     }
     
     string v = argv[1];
-    if ( !( v == "T" || v == "F" || v == "EIGVAL" || v == "MLWF" || v == "MLWFC") )
+    if ( !( v == "T" || v == "F" || v == "EIGVAL" || v == "MLWF" || v == "MLWFC" || "TDMLWF" ) )
     {
       if ( ui->oncoutpe() )
-        cout << " <ERROR> wf_diag must be T, F, EIGVAL, MLWF, or MLWFC </ERROR>" << endl;
+        cout << " <ERROR> wf_diag must be T, F, EIGVAL, MLWF, TDMLWF, or MLWFC </ERROR>" << endl;
       return 1;
     }
 
