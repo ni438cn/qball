@@ -91,7 +91,7 @@ class EnergyFunctional
   int namax_;
   int nsp_;
   double ekin_, econf_, eps_, enl_, ehub_, ehart_, 
-      ecoul_, exc_, esr_, eself_, ets_, epv_, eexf_, etotal_;
+      ecoul_, exc_, esr_, eself_, ets_, epv_, eexf_, etotal_, eefield_, enthalpy_;
   double eharris_;  // terms for Harris-Foulkes estimate for convergence detection
   double evdw_; //van der Waals energy
 
@@ -129,6 +129,8 @@ class EnergyFunctional
   double epv(void) const { return epv_; }
   double eexf(void) const { return eexf_; }
   double ehub(void) const { return ehub_; }
+  double enthalpy(void) const { return enthalpy_; }
+  double eefield(void) const { return eefield_; }
   double eharris(void) const { return eharris_; }
   double etotal_harris(void) const { return (ekin_ + econf_ + enl_ + ets_ + epv_ + ehub_ + eharris_ + esr_ - eself_); };  
   double casino_ewald(void);

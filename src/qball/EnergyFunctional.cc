@@ -1616,6 +1616,31 @@ double EnergyFunctional::energy(Wavefunction& psi, bool compute_hpsi, Wavefuncti
   }
   etotal_ = ekin_ + econf_ + eps_ + enl_ + ecoul_ + exc_ + evdw_ + ets_ + epv_ + ehub_;
 
+  //electric enthalpy term from applied electric field
+  enthalpy_ = etotal_;
+  eefield_ = 0.0;
+  if ( el_enth_ )
+  {
+
+    tmap["el_enth_energy"].start();
+    eefield_ = el_enth_->enthalpy(dwf,compute_hpsi);
+    tmap["el_enth_energy"].stop();
+    //if (s_.ctxt_.oncoutpe()) cout << "
+    enthalpy_ += eefield_;
+
+    if ( compute_forces )
+    {
+      for ( int is = 0; is < nsp_; is++ )
+        for ( int ia = 0; ia < na_[is]; ia++ )
+        {
+          D3vector f = zv_[is] * s_.ctrl.e_field;
+          fion[is][3*ia]   += f.x;
+          fion[is][3*ia+1] += f.y;
+          fion[is][3*ia+2] += f.z;
+        }
+    }
+  }
+
   //ewd DEBUG
   //print(cout);
   
@@ -2132,6 +2157,8 @@ void EnergyFunctional::print(ostream& os) const
     os << "  <epv>    " << setw(15) << epv() << " </epv>\n";
   if (s_.ctrl.dft_plus_u) 
     os << "  <ehub>   " << setw(15) << ehub() << " </ehub>\n";
+    os << " <eefield> " << setw(15) << eefield() << " </eefield>\n";
+    os << " <enthalpy> " << setw(15) << enthalpy() << " </enthalpy>\n";
   os << "  <etotal> " << setw(15) << etotal() << " </etotal>\n"
      << flush;
 }
