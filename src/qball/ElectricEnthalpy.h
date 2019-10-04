@@ -51,7 +51,7 @@ class ElectricEnthalpy
 {
   private:
 
-  Sample& s_;
+  const Sample& s_;
   Wavefunction& wf_;
   Wavefunction* dwf_;
   SlaterDet& sd_;
@@ -104,7 +104,7 @@ class ElectricEnthalpy
   void update(void);
   void print(std::ostream& os) const;
 
-  ElectricEnthalpy( Sample& s);
+  ElectricEnthalpy( const Sample& s);
   ~ElectricEnthalpy(void);
 };
 std::ostream& operator << ( std::ostream& os, const ElectricEnthalpy& e );

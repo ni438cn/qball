@@ -54,7 +54,6 @@ class XCPotential;
 class NonLocalPotential;
 class ConfinementPotential;
 class EnthalpyFunctional;
-class ElectricEnthalpy* el_enth_;
 class HubbardPotential;
 
 typedef map<string,Timer> TimerMap;
@@ -74,6 +73,7 @@ class EnergyFunctional
   StructureFactor sf;
   XCPotential* xcp;
   EnthalpyFunctional* epvf;
+  ElectricEnthalpy* el_enth_;
   vector<vector<NonLocalPotential*> > nlp;
   vector<vector<ConfinementPotential*> > cfp; // cfp[ispin][ikp]
   HubbardPotential* hubp_;
