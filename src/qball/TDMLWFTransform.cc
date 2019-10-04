@@ -42,8 +42,6 @@
 #include <math/matrix.h>
 #include <fstream>
 #include "Context.h"
-#include "SlaterDet.h"
-#include "UserInterface.h"
 
 using namespace std;
 

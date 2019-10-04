@@ -44,10 +44,10 @@
 
 #include <complex>
 #include "Context.h"
-#include "Matrix.h"
+#include <math/matrix.h>
 #include "jacobi.h"
 #include "jacobi_eigenvalue.h"
-#include "blas.h"
+#include <math/blas.h>
 #include "blacs.h" 
 #include "Timer.h"
 using namespace std;

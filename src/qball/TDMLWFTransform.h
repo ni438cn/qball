@@ -34,10 +34,10 @@
 class SlaterDet;
 class UnitCell;
 class DoubleMatrix;
-class ComplexMatrix; //DCY
+class ComplexMatrix; 
 #include "D3vector.h"
 #include "BasisMapping.h"
-#include "UserInterface.h" //DCY
+//#include "UserInterface.h"
 #include <stdlib.h>
 #include <string>
 #include "Sample.h"
