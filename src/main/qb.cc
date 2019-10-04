@@ -110,6 +110,8 @@ using namespace std;
 #include <vars/Ecutprec.h>
 #include <vars/Ecutden.h>
 #include <vars/Ecuts.h>
+#include <vars/Efield.h>
+#include <vars/Polarization.h>
 #include <vars/Emass.h>
 #include <vars/ExtStress.h>
 #include <vars/Smearing.h>
@@ -368,6 +370,8 @@ int main(int argc, char **argv, char **envp)
   ui->addVar(new Ecutprec(s));
   ui->addVar(new Ecutden(s));
   ui->addVar(new Ecuts(s));
+  ui->addVar(new Efield(s));
+  ui->addVar(new Polarization(s));
   ui->addVar(new Emass(s));
   ui->addVar(new ExtStress(s));
   ui->addVar(new Smearing(s));
