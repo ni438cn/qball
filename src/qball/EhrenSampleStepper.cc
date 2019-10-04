@@ -112,8 +112,9 @@ void EhrenSampleStepper::step(int niter)
   int occtest = (2 * s_.wf.nst()) - s_.wf.nspin() * s_.wf.nel();
   const bool fractional_occ = (occtest != 0 && occtest != 1);
   const bool compute_eigvec = fractional_occ || s_.ctrl.wf_diag == "T";
-  const bool compute_mlwf = s_.ctrl.wf_diag == "MLWF";
-  const bool compute_mlwfc = s_.ctrl.wf_diag == "MLWFC";
+  //const bool compute_mlwf = s_.ctrl.wf_diag == "MLWF"; Standard MLWF algorithm doesn't work for Ehrenfest/RT-TDDFT. 
+  //const bool compute_mlwfc = s_.ctrl.wf_diag == "MLWFC";
+  const bool compute_tdmlwf = s_.ctrl.wf_diag == "TDMLWF";
   enum ortho_type { GRAM, LOWDIN, ORTHO_ALIGN, RICCATI };
 
   if (fractional_occ && oncoutpe)
@@ -147,7 +148,7 @@ void EhrenSampleStepper::step(int niter)
   cd_.set_nlcc(nlcc);
   
   //ewd check that MLWF not being used with ultrasoft (not yet implemented)
-  if (ultrasoft && (compute_mlwf || compute_mlwfc)) {
+  if (ultrasoft && (compute_tdmlwf ) {
     if ( oncoutpe ) 
       cout << "<ERROR> EhrenSampleStepper:  Maximally-localized Wannier Functions not yet implemented with ultrasoft. </ERROR>" << endl;
     return;
@@ -227,9 +228,9 @@ void EhrenSampleStepper::step(int niter)
   if ( cell_dyn == "SD" )
     cell_stepper = new SDCellStepper(s_);
 
-  MLWFTransform* mlwft=0;
+  TDMLWFTransform* tdmlwft=0;
 
-  if ( compute_mlwf || compute_mlwfc )
+  if ( compute_tdmlwf )
   {
     // MLWF can be computed at the gamma point only
     // There must be a single k-point, and it must be gamma
@@ -246,7 +247,7 @@ void EhrenSampleStepper::step(int niter)
     if (wf.nspin() > 1 && s_.ctxt_.oncoutpe()) 
       cout << "<ERROR> nspin > 1!  MLWF doesn't currently work with spin-polarized systems </ERROR>" << endl;
     assert(wf.nspin()==1);
-    mlwft = new MLWFTransform(*wf.sd(0,0));
+    tdmlwft = new TDMLWFTransform(*wf.sd(0,0));
   }
 
   // if ultrasoft, calculate position-dependent functions
@@ -446,6 +447,7 @@ void EhrenSampleStepper::step(int niter)
     {
        cout << "<atomset>" << endl;
        cout << atoms.cell();
+       if ( ef_.el_enth() ) cout << *ef_.el_enth(); 
        for ( int is = 0; is < atoms.atom_list.size(); is++ )
        {
           int i = 0;
@@ -1089,21 +1091,22 @@ void EhrenSampleStepper::step(int niter)
        (*s_.previous_wf) = s_.wf;
     }
 
-    if ( compute_mlwf || compute_mlwfc )
+    if ( compute_tdmlwf )
     {
        SlaterDet& sd = *(wf.sd(0,0));
-       mlwft->compute_transform();
+       tdmlwft->update();
+       tdmlwft->compute_transform();
 
        if ( compute_mlwf )
-          mlwft->apply_transform(sd);
+          tdmlwft->apply_transform(sd);
           
           if ( oncoutpe )
           {
              cout << " <mlwf_set size=\"" << sd.nst() << "\">" << endl;
              for ( int i = 0; i < sd.nst(); i++ )
              {
-                D3vector ctr = mlwft->center(i);
-                double sp = mlwft->spread(i);
+                D3vector ctr = tdmlwft->center(i);
+                double sp = tdmlwft->spread(i);
                 cout.setf(ios::fixed, ios::floatfield);
                 cout.setf(ios::right, ios::adjustfield);
                 cout << "   <mlwf center=\"" << setprecision(6)
@@ -1114,7 +1117,7 @@ void EhrenSampleStepper::step(int niter)
                      << endl;
              }
              cout << " </mlwf_set>" << endl;
-             D3vector edipole = mlwft->dipole();
+             D3vector edipole = tdmlwft->dipole();
              cout << " <electronic_dipole> " << edipole
                   << " </electronic_dipole>" << endl;
              D3vector idipole = atoms.dipole();
@@ -1517,7 +1520,7 @@ void EhrenSampleStepper::step(int niter)
      s_.wfv = 0;
   }
 
-  delete mlwft;
+  delete tdmlwft;
 
   // delete steppers
   delete wf_stepper;
