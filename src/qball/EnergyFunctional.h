@@ -39,6 +39,7 @@
 #include "ChargeDensity.h"
 #include "StructureFactor.h"
 #include "SelfConsistentPotential.h"
+#include "ElectricEnthalpy.h"
 #include "Timer.h"
 #include "VectorPotential.h"
 using namespace std;
@@ -53,6 +54,7 @@ class XCPotential;
 class NonLocalPotential;
 class ConfinementPotential;
 class EnthalpyFunctional;
+class ElectricEnthalpy* el_enth_;
 class HubbardPotential;
 
 typedef map<string,Timer> TimerMap;
@@ -132,7 +134,9 @@ class EnergyFunctional
   double casino_ewald(void);
   double casino_vloc(void);
   const ConfinementPotential *confpot(int ispin, int ikp) const { return cfp[ispin][ikp]; }
-  
+ 
+  ElectricEnthalpy* el_enth() { return el_enth_; }
+ 
   void update_vhxc(void);
   void update_harris(void);
 

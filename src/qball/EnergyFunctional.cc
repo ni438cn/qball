@@ -233,6 +233,12 @@ EnergyFunctional::EnergyFunctional(const Sample& s, const Wavefunction& wf, Char
       }
     }
   }
+
+  el_enth_ = 0;
+  if ( s_.ctrl.polarization != "OFF" )
+   {
+    el_enth_ = new ElectricEnthalpy(s_);
+   }
   
   sf.init(tau0,*vbasis_);
   
@@ -277,6 +283,7 @@ EnergyFunctional::~EnergyFunctional(void) {
   if(s_.ctrl.vdw == "D3") dftd3_end();
   
   delete xcp;
+  delete el_enth_;
   for ( int ispin = 0; ispin < wf_.nspin(); ispin++ )
     if (wf_.spinactive(ispin)) {
       int nlpsize = nlp[ispin].size();
