@@ -41,6 +41,7 @@ noinst_HEADERS =                            \
 	EhrenSampleStepper.h                \
 	EmpiricalPotential.h                \
 	EnergyFunctional.h                  \
+        ElectricEnthalpy.h                  \
 	EnthalpyFunctional.h                \
 	ExponentialWavefunctionStepper.h    \
 	Extrapolator.h                      \
@@ -56,7 +57,9 @@ noinst_HEADERS =                            \
 	IonicStepper.h                      \
 	isodate.h                           \
 	jacobi.h                            \
+	jacobi_eigenvalue.h		    \
 	jade.h                              \
+	jade_complex.h			    \
 	JDWavefunctionStepper.h             \
 	MDIonicStepper.h                    \
 	MDWavefunctionStepper.h             \
@@ -97,6 +100,7 @@ noinst_HEADERS =                            \
 	Symmetry.h                          \
 	SymmetrySet.h                       \
 	TDEULERWavefunctionStepper.h        \
+	TDMLWFTransform.h		    \
 	Timer.h                             \
 	TorsionConstraint.h                 \
 	Unit.h                              \
@@ -118,6 +122,7 @@ libqbLink_a_SOURCES =                        \
 	RMMDIISWavefunctionStepper.cc        \
 	SlaterDet.cc                         \
 	EnergyFunctional.cc                  \
+	ElectricEnthalpy.cc		     \
 	SampleStepper.cc                     \
 	Basis.cc                             \
 	CurrentDensity.cc                    \
@@ -160,6 +165,8 @@ libqbLink_a_SOURCES =                        \
 	BasisMapping.cc                      \
 	MLWFTransform.cc                     \
 	jade.cc                              \
+	TDMLWFTransform.cc		     \
+	jade_complex.cc			     \
 	ConstraintSet.cc                     \
 	Constraint.cc                        \
 	DistanceConstraint.cc                \
