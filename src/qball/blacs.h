@@ -30,6 +30,7 @@
 
 #ifndef BLACS_H
 #define BLACS_H
+#include <complex>
 
 extern "C"{
 void igesd2d(int*,int*,int*, int*, int*,int*,int*);
@@ -60,7 +61,9 @@ extern "C"{
 #endif
 // C interface to the BLACS
 void Cdgesd2d(int,int,int, double*, int,int,int);
+void Czgesd2d(int,int,int, std::complex<double>*, int,int,int);
 void Cdgerv2d(int,int,int, double*, int,int,int);
+void Czgerv2d(int,int,int, std::complex<double>*, int,int,int);
 void Cdgsum2d(int,char*,char*,int,int,double*,int,int,int);
 void Cdgamx2d(int,char*,char*,int,int,double*,int,int*,int*,int,int,int);
 void Cdgamn2d(int,char*,char*,int,int,double*,int,int*,int*,int,int,int);

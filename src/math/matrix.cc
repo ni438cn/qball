@@ -106,6 +106,7 @@ using namespace std;
 #define zgemm      FC_FUNC(zgemm, ZGEMM)
 #define dsyr       FC_FUNC(dsyr, DSYR)
 #define dger       FC_FUNC(dger, DGER)
+#define zgerc	   FC_FUNC(zgerc, ZGERC)
 #define dsyrk      FC_FUNC(dsyrk, DSYRK)
 #define zherk      FC_FUNC(zherk, ZHERK)
 #define dtrmm      FC_FUNC(dtrmm, DTRMM)
@@ -327,6 +328,9 @@ extern "C"
   void dger(const int *, const int*, const double *, 
             const double *, const int *, const double *, const int *,
             double*, const int*);
+  void zgerc(const int *, const int*, const complex<double>*,
+            const complex<double>*, const int *, const complex<double>*, const int *,
+            complex<double>*, const int*);
   void dsyr(const char*, const int *, const double *, 
             const double *, const int *, double *, const int *);
   void dsyrk(const char*, const char*, const int *, const int *,
@@ -1407,7 +1411,7 @@ void ComplexMatrix::zger(complex<double> alpha,
 
   int incx = x.m();
   int incy = y.m();
-  zger(&m_,&n_,&alpha,&x.val[kx*x.m()],&incx,
+  zgerc(&m_,&n_,&alpha,&x.val[kx*x.m()],&incx,
                       &y.val[ky*y.m()],&incy,val,&m_);
 #endif
 

@@ -216,6 +216,11 @@ struct ContextRep
   {
      Cdgerv2d(ictxt_,m,n,a,lda,rsrc,csrc);
   }
+
+  void zrecv(int m, int n, complex<double>* a, int lda, int rsrc, int csrc) const
+  {
+    Czgerv2d(ictxt_,m,n,a,lda,rsrc,csrc);
+  }
  
   void dsum(char scope, char topology, int m, int n, double* a, int lda,
             int rdest, int cdest) const
