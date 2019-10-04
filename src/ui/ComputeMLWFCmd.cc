@@ -45,40 +45,78 @@ int ComputeMLWFCmd::action(int argc, char **argv)
     return 1;
   }
 
-
-  mlwft = new MLWFTransform(sd);
-
-  mlwft->compute_transform();
-  mlwft->apply_transform(sd);
-
-  if ( ui->oncoutpe() )
+// If WFs are complex, use "TDMLWF" to compute WFs with complex components
+  if (wf.force_complex_set()) 
   {
-    cout << " <mlwf_set size=\"" << sd.nst() << "\">" << endl;
-    for ( int i = 0; i < sd.nst(); i++ )
-    {
-      D3vector ctr = mlwft->center(i);
-      double sp = mlwft->spread(i);
-      cout.setf(ios::fixed, ios::floatfield);
-      cout.setf(ios::right, ios::adjustfield);
-      cout << "   <mlwf center=\"" << setprecision(6)
+	TDMLWFTransform* tdmlwft = new TDMLWFTransform(sd);
+  	tdmlwft->update();
+  	tdmlwft->compute_transform();
+  	tdmlwft->apply_transform(sd);
+	if ( ui->oncoutpe() )
+  	{
+    	cout << " <mlwf_set size=\"" << sd.nst() << "\">" << endl;
+    	for ( int i = 0; i < sd.nst(); i++ )
+    	{
+      	D3vector ctr = tdmlwft->center(i);
+      	double sp = tdmlwft->spread(i);
+      	cout.setf(ios::fixed, ios::floatfield);
+      	cout.setf(ios::right, ios::adjustfield);
+      	cout << "   <mlwf center=\"" << setprecision(6)
            << setw(12) << ctr.x
            << setw(12) << ctr.y
            << setw(12) << ctr.z
            << " \" spread=\" " << sp << " \"/>"
            << endl;
-    }
-    cout << " </mlwf_set>" << endl;
-    D3vector edipole = mlwft->dipole();
-    cout << " <electronic_dipole> " << edipole
-         << " </electronic_dipole>" << endl;
-    D3vector idipole = s->atoms.dipole();
-    cout << " <ionic_dipole> " << idipole
-         << " </ionic_dipole>" << endl;
-    cout << " <total_dipole> " << idipole + edipole
-         << " </total_dipole>" << endl;
-    cout << " <total_dipole_length> " << length(idipole + edipole)
-         << " </total_dipole_length>" << endl;
+    	}
+    	cout << " </mlwf_set>" << endl;
+    	D3vector edipole = tdmlwft->dipole();
+    	cout << " <electronic_dipole> " << edipole
+             << " </electronic_dipole>" << endl;
+    	D3vector idipole = s->atoms.dipole();
+    	cout << " <ionic_dipole> " << idipole
+             << " </ionic_dipole>" << endl;
+    	cout << " <total_dipole> " << idipole + edipole
+             << " </total_dipole>" << endl;
+    	cout << " <total_dipole_length> " << length(idipole + edipole)
+             << " </total_dipole_length>" << endl;
+  	}
+	delete tdmlwft;
   }
-  delete mlwft;
+  else
+  {
+        MLWFTransform* mlwft = new MLWFTransform(sd);
+        mlwft->update();
+        mlwft->compute_transform();
+        mlwft->apply_transform(sd);
+  	if ( ui->oncoutpe() )
+  	{
+    	cout << " <mlwf_set size=\"" << sd.nst() << "\">" << endl;
+    	for ( int i = 0; i < sd.nst(); i++ )
+    	{
+      	D3vector ctr = mlwft->center(i);
+      	double sp = mlwft->spread(i);
+      	cout.setf(ios::fixed, ios::floatfield);
+      	cout.setf(ios::right, ios::adjustfield);
+      	cout << "   <mlwf center=\"" << setprecision(6)
+             << setw(12) << ctr.x
+             << setw(12) << ctr.y
+             << setw(12) << ctr.z
+             << " \" spread=\" " << sp << " \"/>"
+             << endl;
+    	}
+    	cout << " </mlwf_set>" << endl;
+    	D3vector edipole = mlwft->dipole();
+    	cout << " <electronic_dipole> " << edipole
+             << " </electronic_dipole>" << endl;
+    	D3vector idipole = s->atoms.dipole();
+    	cout << " <ionic_dipole> " << idipole
+             << " </ionic_dipole>" << endl;
+    	cout << " <total_dipole> " << idipole + edipole
+             << " </total_dipole>" << endl;
+    	cout << " <total_dipole_length> " << length(idipole + edipole)
+             << " </total_dipole_length>" << endl;
+  	}
+  	delete mlwft;
+   }
   return 0;
 }

@@ -38,11 +38,11 @@
 #include <ui/UserInterface.h>
 #include <qball/Sample.h>
 #include <qball/MLWFTransform.h>
-
+#include <qball/TDMLWFTransform.h>
 class ComputeMLWFCmd : public Cmd
 {
   private:
-
+  TDMLWFTransform* tdmlwft;
   MLWFTransform* mlwft;
 
   public:
@@ -64,9 +64,6 @@ class ComputeMLWFCmd : public Cmd
   int action(int argc, char **argv);
 
   ComputeMLWFCmd();
+  ~ComputeMLWFCmd();
 };
 #endif
-
-// Local Variables:
-// mode: c++
-// End:
