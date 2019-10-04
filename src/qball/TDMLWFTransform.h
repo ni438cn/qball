@@ -35,7 +35,7 @@ class SlaterDet;
 class UnitCell;
 class DoubleMatrix;
 class ComplexMatrix; 
-#include "D3vector.h"
+#include <math/d3vector.h>
 #include "BasisMapping.h"
 //#include "UserInterface.h"
 #include <stdlib.h>
