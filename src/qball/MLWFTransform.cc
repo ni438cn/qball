@@ -56,6 +56,13 @@ cell_(sd.basis().cell()), ctxt_(sd.context()),  bm_(BasisMapping(sd.basis()))
     adiag_[k].resize(n);
   }
   u_ = new DoubleMatrix(ctxt_,n,n,nb,nb);
+
+  sdcosx_ = new SlaterDet(sd_);
+  sdcosy_ = new SlaterDet(sd_);
+  sdcosz_ = new SlaterDet(sd_);
+  sdsinx_ = new SlaterDet(sd_);
+  sdsiny_ = new SlaterDet(sd_);
+  sdsinz_ = new SlaterDet(sd_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,24 +71,25 @@ MLWFTransform::~MLWFTransform(void)
   for ( int k = 0; k < 6; k++ )
     delete a_[k];
   delete u_;
+
+  delete sdcosx_;
+  delete sdcosy_;
+  delete sdcosz_;
+  delete sdsinx_;
+  delete sdsiny_;
+  delete sdsinz_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void MLWFTransform::compute_transform(void)
+void MLWFTransform::update(void)
 {
-  const int maxsweep = 50;
-  const double tol = 1.e-8;
-
-  SlaterDet sdcosx(sd_), sdsinx(sd_),
-            sdcosy(sd_), sdsiny(sd_),
-            sdcosz(sd_), sdsinz(sd_);
   const ComplexMatrix& c = sd_.c();
-  ComplexMatrix& ccosx = sdcosx.c();
-  ComplexMatrix& csinx = sdsinx.c();
-  ComplexMatrix& ccosy = sdcosy.c();
-  ComplexMatrix& csiny = sdsiny.c();
-  ComplexMatrix& ccosz = sdcosz.c();
-  ComplexMatrix& csinz = sdsinz.c();
+  ComplexMatrix& ccosx = sdcosx_->c();
+  ComplexMatrix& csinx = sdsinx_->c();
+  ComplexMatrix& ccosy = sdcosy_->c();
+  ComplexMatrix& csiny = sdsiny_->c();
+  ComplexMatrix& ccosz = sdcosz_->c();
+  ComplexMatrix& csinz = sdsinz_->c();
   // proxy real matrices cr, cc, cs
   DoubleMatrix cr(c);
   DoubleMatrix ccx(ccosx);
@@ -110,6 +118,7 @@ void MLWFTransform::compute_transform(void)
   const int nvec = bm_.nvec();
   for ( int n = 0; n < c.nloc(); n++ )
   {
+    cout << "n = " << n << endl;
     const complex<double>* f = c.cvalptr(n*c.mloc());
     complex<double>* fcx = ccosx.valptr(n*c.mloc());
     complex<double>* fsx = csinx.valptr(n*c.mloc());
@@ -195,10 +204,16 @@ void MLWFTransform::compute_transform(void)
   a_[4]->ger(-1.0,cr,0,ccz,0);
   a_[5]->gemm('t','n',2.0,cr,csz,0.0);
   a_[5]->ger(-1.0,cr,0,csz,0);
-
-  int nsweep = jade(maxsweep,tol,a_,*u_,adiag_);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void MLWFTransform::compute_transform(void)
+{
+  const int maxsweep = 100;
+  const double tol = 1.e-8;
+  int nsweep = jade(maxsweep,tol,a_,*u_,adiag_);
+  // Joint approximate diagonalization step.
+}
 ////////////////////////////////////////////////////////////////////////////////
 void MLWFTransform::compute_sincos(const int n, const complex<double>* f,
   complex<double>* fc, complex<double>* fs)
@@ -306,5 +321,7 @@ void MLWFTransform::apply_transform(SlaterDet& sd)
   // proxy double matrix c
   DoubleMatrix c(sd.c());
   DoubleMatrix cp(c);
+
   c.gemm('n','n',1.0,cp,*u_,0.0);
+	
 }

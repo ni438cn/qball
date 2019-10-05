@@ -52,8 +52,23 @@ class MLWFTransform
   DoubleMatrix* u_;               // orthogonal transformation
   std::vector<std::vector<double> > adiag_; // diagonal elements
 
-  public:
+  SlaterDet *sdcosx_, *sdsinx_,
+	    *sdcosy_, *sdsiny_,
+	    *sdcosz_, *sdsinz_;
 
+  public:
+  DoubleMatrix* a(int k) { return a_[k]; };
+
+  SlaterDet* sdcosx(void) { return sdcosx_; };
+  SlaterDet* sdcosy(void) { return sdcosy_; };
+  SlaterDet* sdcosz(void) { return sdcosz_; };
+  SlaterDet* sdsinx(void) { return sdsinx_; };
+  SlaterDet* sdsiny(void) { return sdsiny_; };
+  SlaterDet* sdsinz(void) { return sdsinz_; };
+
+  double adiag(int k, int i) { return adiag_[k][i]; }
+
+  void update(void); //compute matrices for Berry phase and MLWF
   void compute_transform(void);
   void compute_sincos(const int n, const std::complex<double>* f,
     std::complex<double>* fc, std::complex<double>* fs);
@@ -71,7 +86,3 @@ class MLWFTransform
   ~MLWFTransform(void);
 };
 #endif
-
-// Local Variables:
-// mode: c++
-// End:
