@@ -52,7 +52,7 @@ class ElectricEnthalpy
   private:
 
   const Sample& s_;
-  Wavefunction& wf_;
+  const Wavefunction& wf_;
   Wavefunction* dwf_;
   SlaterDet& sd_;
   const Context& ctxt_;
