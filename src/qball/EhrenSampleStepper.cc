@@ -148,7 +148,7 @@ void EhrenSampleStepper::step(int niter)
   cd_.set_nlcc(nlcc);
   
   //ewd check that MLWF not being used with ultrasoft (not yet implemented)
-  if (ultrasoft && (compute_tdmlwf ) {
+  if (ultrasoft && (compute_tdmlwf )) {
     if ( oncoutpe ) 
       cout << "<ERROR> EhrenSampleStepper:  Maximally-localized Wannier Functions not yet implemented with ultrasoft. </ERROR>" << endl;
     return;
