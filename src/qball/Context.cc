@@ -211,6 +211,11 @@ struct ContextRep
   {
      Cdgesd2d(ictxt_,m,n,a,lda,rdest,cdest);
   }
+
+  void zsend(int m, int n, complex<double>* a, int lda, int rdest, int cdest) const
+  {
+    Czgesd2d(ictxt_,m,n,a,lda,rdest,cdest);
+  }
  
   void drecv(int m, int n, double* a, int lda, int rsrc, int csrc) const
   {
@@ -827,9 +832,17 @@ void Context::dsend(int m, int n, double* a,
   int lda, int rdest, int cdest) const
 { (*pimpl_)->dsend(m,n,a,lda,rdest,cdest); }
 
+void Context::zsend(int m, int n, complex<double>* a,
+  int lda, int rdest, int cdest) const
+{ (*pimpl_)->zsend(m,n,a,lda,rdest,cdest); }
+
 void Context::drecv(int m, int n, double* a, 
   int lda, int rsrc, int csrc) const
 { (*pimpl_)->drecv(m,n,a,lda,rsrc,csrc); }
+
+void Context::zrecv(int m, int n, complex<double>* a,
+  int lda, int rsrc, int csrc) const
+{ (*pimpl_)->zrecv(m,n,a,lda,rsrc,csrc); }
 
 void Context::dsum(char scope, char topology, 
   int m, int n, double* a, int lda, int rdest, int cdest) const

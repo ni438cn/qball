@@ -31,6 +31,8 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
+#include <complex>
+
 #include <config.h>
 
 #include <iosfwd>
@@ -80,7 +82,10 @@ class Context
   // double communications
   void dsend(int m, int n, double* a, int lda, int rdest, int cdest) const;
   void drecv(int m, int n, double* a, int lda, int rsrc, int csrc) const;
-  
+ 
+  void zsend(int m, int n, complex<double>* a, int lda, int rdest, int cdest) const;
+  void zrecv(int m, int n, complex<double>* a, int lda, int rsrc, int csrc) const;
+ 
   void dsum(char scope, char topology, 
             int m, int n, double* a, int lda, int rdest, int cdest) const;
   void dsum(char scope, int m, int n, double* a, int lda) const;
