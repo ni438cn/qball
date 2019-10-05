@@ -51,6 +51,7 @@ using namespace std;
 #define zdotu  FC_FUNC(zdotu, ZDOTU)  
 #define zdotc  FC_FUNC(zdotc, ZDOTC)  
 #define drot   FC_FUNC(drot,  DROT)  
+#define zrot   FC_FUNC(zrot,  ZROT)
 #define dasum  FC_FUNC(dasum, DASUM) 
 #define dsbmv  FC_FUNC(dsbmv, DSBMV) 
 #define dgemm  FC_FUNC(dgemm, DGEMM) 
@@ -96,6 +97,7 @@ complex<double> zdotu(const int *n, const complex<double> *a, const int *inca,
 complex<double> zdotc(int* n, complex<double> *zx, int* incx, 
   complex<double> *zy, int* incy);
 void drot(int*, double*, int*, double*, int*, double*, double*);
+void zrot(int*, std::complex<double>*, int*, std::complex<double>*, int*, std::complex<double>*, std::complex<double>*);
 void dgemm(char *ta, char *tb, int *m, int *n, int *k,
   double *alpha, double *a, int *lda, double *b, int *ldb,
   double *beta, double *c, int *ldc);
