@@ -79,7 +79,7 @@ double ElectricEnthalpy::vsst(double x) const
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-ElectricEnthalpy::ElectricEnthalpy(Sample& s): s_(s), wf_(s.wf),
+ElectricEnthalpy::ElectricEnthalpy(const Sample& s): s_(s), wf_(s.wf),
   sd_(*(s.wf.sd(0,0))), ctxt_(s.wf.sd(0,0)->context()),
   basis_(s.wf.sd(0,0)->basis())
 {
