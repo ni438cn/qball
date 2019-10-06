@@ -45,6 +45,7 @@
 #include "BMDIonicStepper.h"
 #include "SDCellStepper.h"
 #include "MLWFTransform.h"
+#include "TDMLWFTransform.h"
 #include "SimpleConvergenceDetector.h"
 #include "Hugoniostat.h"
 #include "PrintMem.h"
@@ -1097,7 +1098,7 @@ void EhrenSampleStepper::step(int niter)
        tdmlwft->update();
        tdmlwft->compute_transform();
 
-       if ( compute_mlwf )
+       if ( compute_tdmlwf )
           tdmlwft->apply_transform(sd);
           
           if ( oncoutpe )
