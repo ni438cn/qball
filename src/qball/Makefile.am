@@ -167,6 +167,7 @@ libqbLink_a_SOURCES =                        \
 	jade.cc                              \
 	TDMLWFTransform.cc		     \
 	jade_complex.cc			     \
+	jacobi_eigenvalue.cc		     \
 	ConstraintSet.cc                     \
 	Constraint.cc                        \
 	DistanceConstraint.cc                \
