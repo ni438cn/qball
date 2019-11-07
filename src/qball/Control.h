@@ -122,6 +122,7 @@ struct Control
 
   int savefreq;     // if > 0, checkpoint within iteration loop
   int savedenfreq;  // if > 0, checkpoint within iteration loop
+  int caldipfreq;  // if > 0, checkpoint within iteration loop
   string savedenfilebase; // optional subdirectory and filename base for density snapshots
   int savewffreq;  // if > 0, checkpoint within iteration loop
   string savewffilebase; // optional subdirectory and filename base for density snapshots
@@ -129,6 +130,9 @@ struct Control
 
   string esm_bc;
   double esm_w;
+
+  bool has_absorbing_potential; // YY: whether absorbing potential
+  string absorbing_potential; // YY: absorbing potential informations
 
   std::string fcp_thermostat;
   double fcp_th_temp;

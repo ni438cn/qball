@@ -51,6 +51,7 @@ class Wavefunction;
 class UnitCell;
 class FourierTransform;
 class XCPotential;
+class AbsorbingPotential;
 class NonLocalPotential;
 class ConfinementPotential;
 class EnthalpyFunctional;
@@ -72,6 +73,7 @@ class EnergyFunctional
   vector<vector<FourierTransform*> > ft;
   StructureFactor sf;
   XCPotential* xcp;
+  AbsorbingPotential* abp_;
   EnthalpyFunctional* epvf;
   ElectricEnthalpy* el_enth_;
   vector<vector<NonLocalPotential*> > nlp;
@@ -104,6 +106,8 @@ class EnergyFunctional
 
   VectorPotential * vp;
   vector<vector<double> > v_r;
+  vector<complex<double>> vabs_r; // YY absorbing potential
+
   vector<vector<complex<double> > > vxc_g;
   vector<vector<complex<double> > > veff_g;
   mutable TimerMap tmap;

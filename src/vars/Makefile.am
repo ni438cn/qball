@@ -2,6 +2,7 @@ include $(srcdir)/../common-rules.make
 
 noinst_HEADERS =                            \
 	AtomsDyn.h                          \
+        AbsorbingPotentialVar.h             \
 	CellDyn.h                           \
 	Cell.h                              \
 	CellLock.h                          \
