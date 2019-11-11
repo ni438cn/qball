@@ -5,6 +5,7 @@ lib_LIBRARIES =                             \
 
 noinst_HEADERS =                            \
 	AngleCmd.h                          \
+	ApplyElectricFieldPulseCmd.h        \
 	AtomCmd.h                           \
 	ComputeMLWFCmd.h                    \
 	ConstraintCmd.h                     \
@@ -50,6 +51,7 @@ noinst_HEADERS =                            \
 	WFPhaseRealCmd.h
 
 libui_a_SOURCES =                           \
+	ApplyElectricFieldPulseCmd.cc        \
 	ComputeMLWFCmd.cc \
 	LoadCmd.cc \
 	LoaddenCmd.cc \
