@@ -1598,9 +1598,16 @@ double NonLocalPotential::energy(SlaterDet& sd, bool compute_hpsi, SlaterDet& ds
                  //complex<double> qv = zdotc((int*)&ngloc,&qnmg_[is][qi0],&one,&veff[0],&one);
 
                  complex<double> qv = complex<double>(0.0,0.0);
-                 myzdotc(ngloc,&qnmg_[is][qi0],&veff[0],&qv);
+                // Chris  
+		//myzdotc(ngloc,&qnmg_[is][qi0],&veff[0],&qv);
                  
-                 dmat[dind] = real(qv);  // missing omega_inv from qnmg FFT cancels out omega
+		 int ii;
+                 for (ii=0; ii<ngloc; ++ii)
+                       {
+                        qv += conj(qnmg_[is][qi0])*(veff[ii]);
+                       }
+                // Chris 
+		dmat[dind] = real(qv);  // missing omega_inv from qnmg FFT cancels out omega
               }
            }
         }
