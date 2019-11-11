@@ -88,6 +88,7 @@ using namespace std;
 #include <ui/UnlockCmd.h>
 #include <ui/SetVelCmd.h>
 #include <ui/ComputeMLWFCmd.h>
+#include <ui/ApplyElectricFieldPulseCmd.h>
 #include <ui/AngleCmd.h>
 #include <ui/ConstraintCmd.h>
 #include <ui/DistanceCmd.h>
@@ -141,6 +142,7 @@ using namespace std;
 #include <vars/WfExtrap.h>
 #include <vars/WFPhaseRealVar.h>
 #include <vars/Xc.h>
+#include <vars/AbsorbingPotentialVar.h>
 #include <vars/Nparallelkpts.h>
 #include <vars/Nkpoints.h>
 #include <vars/IPrint.h>
@@ -159,6 +161,7 @@ using namespace std;
 #include <vars/SaveFreq.h>
 #include <vars/SaveDenFreq.h>
 #include <vars/SaveWfFreq.h>
+#include <vars/CalDipFreq.h>
 #include <vars/NetCharge.h>
 #include <vars/EsmBC.h>
 #include <vars/EsmW.h>
@@ -359,6 +362,7 @@ void qbLink::init(void) {
   ui->addCmd(new LockCmd(s));
   ui->addCmd(new UnlockCmd(s));
   ui->addCmd(new ComputeMLWFCmd(s));
+  ui->addCmd(new ApplyElectricFieldPulseCmd(s));  
   ui->addCmd(new ConstraintCmd(s));
   ui->addCmd(new ShiftWFCmd(s));
   ui->addCmd(new WFPhaseRealCmd(s));
@@ -402,6 +406,7 @@ void qbLink::init(void) {
   ui->addVar(new WfDiag(s));
   ui->addVar(new WfDyn(s));
   ui->addVar(new Xc(s));
+  ui->addVar(new AbsorbingPotentialVar(s));
   ui->addVar(new Nparallelkpts(s));
   ui->addVar(new Nkpoints(s));
   ui->addVar(new IPrint(s));
@@ -425,6 +430,7 @@ void qbLink::init(void) {
   ui->addVar(new SaveFreq(s));
   ui->addVar(new SaveDenFreq(s));
   ui->addVar(new SaveWfFreq(s));
+  ui->addVar(new CalDipFreq(s));
   ui->addVar(new NetCharge(s));
   ui->addVar(new EsmBC(s));
   ui->addVar(new EsmW(s));
