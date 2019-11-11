@@ -1265,14 +1265,14 @@ void EhrenSampleStepper::step(int niter)
              }
           }
 
-	 // { CS
+	  { 
 	    // PRINT THE CURRENT
-	    //currd_.plot_vtk(&s_, curfilename); CS
+	    currd_.plot_vtk(&s_, curfilename); CS
 	    //std::ostringstream oss; 
 	    //	    oss << std::setfill('0') << std::setw(6) << iter;
 	    // CUBE files are not very useful for the current
 	    //currd_.plot(&s_, "current" + oss.str());
-	 // } CS
+	  } 
        }
     }
 
