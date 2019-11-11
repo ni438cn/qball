@@ -115,6 +115,7 @@ struct Control
   bool dft_plus_u;
   bool ultrasoft;
   bool nlcc;         // non-linear core correction
+  bool mgga;	     // YY whether meta gga 	
   double ecutden;
 
   int extra_memory;  // guides use of extra memory to speed computation
