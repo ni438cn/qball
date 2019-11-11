@@ -109,6 +109,7 @@ noinst_HEADERS =                            \
 	VectorPotential.h                   \
 	Wavefunction.h                      \
 	WavefunctionStepper.h               \
+	AbsorbingPotential.h                \
 	XCPotential.h
 
 libqbLink_a_SOURCES =                        \
@@ -134,6 +135,7 @@ libqbLink_a_SOURCES =                        \
 	ChargeDensity.cc                     \
 	SpeciesReader.cc                     \
 	XCPotential.cc                       \
+	AbsorbingPotential.cc                \
 	NonLocalPotential.cc                 \
 	Base64Transcoder.cc                  \
 	CPSampleStepper.cc                   \
