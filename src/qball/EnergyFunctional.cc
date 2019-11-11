@@ -36,6 +36,7 @@
 #include "FourierTransform.h"
 #include "StructureFactor.h"
 #include "XCPotential.h"
+#include "AbsorbingPotential.h"
 #include "NonLocalPotential.h"
 #include "ConfinementPotential.h"
 #include "EnthalpyFunctional.h"
@@ -82,6 +83,9 @@ EnergyFunctional::EnergyFunctional(const Sample& s, const Wavefunction& wf, Char
   for ( int ispin = 0; ispin < wf_.nspin(); ispin++ ) {
     v_r[ispin].resize(vft->np012loc());
   }
+
+  vabs_r.resize(vft->np012loc()); // YY for absorbing potential
+
   tmp_r.resize(vft->np012loc());
 
   if ( s_.ctxt_.oncoutpe() ) {
@@ -130,6 +134,11 @@ EnergyFunctional::EnergyFunctional(const Sample& s, const Wavefunction& wf, Char
   else
   {
      xcp = new XCPotential(cd_,s_.ctrl.xc);
+  }
+  
+  //
+  if (s_.ctrl.has_absorbing_potential) {
+    abp_ = new AbsorbingPotential(cd_,s_.ctrl.absorbing_potential);
   }
 
   vp = NULL;
@@ -393,6 +402,8 @@ void EnergyFunctional::update_vhxc(void) {
   //fill(v_r[ispin].begin(),v_r[ispin].end(),0.0);
 
   xcp->update(v_r);
+  if (s_.ctrl.has_absorbing_potential && s_.ctrl.tddft_involved) {
+  abp_->update(vabs_r); } // YY
   exc_ = xcp->exc();
   tmap["exc"].stop();
 
@@ -1016,6 +1027,8 @@ void EnergyFunctional::update_harris(void) {
   
    // update XC energy and potential
   xcp->update(v_r);
+  if (s_.ctrl.has_absorbing_potential && s_.ctrl.tddft_involved) {
+  abp_->update(vabs_r); } // YY
   eharris_ = xcp->exc();
 
   // compute local potential energy: 
@@ -1725,6 +1738,8 @@ double EnergyFunctional::energy(Wavefunction& psi, bool compute_hpsi, Wavefuncti
 	    if(vp) delete [] kpg2;
 	    
             sd.rs_mul_add(*ft[ispin][ikp], &v_r[ispin][0], sdp);
+            if (s_.ctrl.has_absorbing_potential && s_.ctrl.tddft_involved) {
+            sd.rs_mul_add(*ft[ispin][ikp], &vabs_r[0], sdp);} // YY
           }
         }
       }
