@@ -65,7 +65,7 @@ class EnergyFunctional
 
    friend class SelfConsistentPotential;
    
-  const Sample& s_;
+  Sample& s_;
   const Wavefunction& wf_;
   ChargeDensity& cd_;
   Basis* vbasis_;
@@ -104,9 +104,12 @@ class EnergyFunctional
 
   public:
 
+  //const XCPotential* xcp() { return xcp; }
+
   VectorPotential * vp;
   vector<vector<double> > v_r;
   vector<complex<double>> vabs_r; // YY absorbing potential
+  vector<vector<double> > vxc_tau; // YY metagga
 
   vector<vector<complex<double> > > vxc_g;
   vector<vector<complex<double> > > veff_g;
@@ -176,7 +179,7 @@ class EnergyFunctional
      esr_ = potential.esr_;
   }
   
-  EnergyFunctional(const Sample& s, const Wavefunction& wf, ChargeDensity& cd);
+  EnergyFunctional(Sample& s, const Wavefunction& wf, ChargeDensity& cd);
   ~EnergyFunctional();
 };
 ostream& operator << ( ostream& os, const EnergyFunctional& e );
