@@ -72,7 +72,7 @@ class EnergyFunctional
   FourierTransform *vft;
   vector<vector<FourierTransform*> > ft;
   StructureFactor sf;
-  XCPotential* xcp;
+  XCPotential* xcp_;
   AbsorbingPotential* abp_;
   EnthalpyFunctional* epvf;
   ElectricEnthalpy* el_enth_;

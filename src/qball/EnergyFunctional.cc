@@ -135,15 +135,14 @@ EnergyFunctional::EnergyFunctional( Sample& s, const Wavefunction& wf, ChargeDen
      update_hamiltonian();
 
      // AS: the charge density based on hamil_wf has to be used
-     xcp = new XCPotential((*hamil_cd_),s_.ctrl.xc,cd_);
+     xcp_ = new XCPotential((*hamil_cd_),s_.ctrl.xc,cd_);
   }
   else
   {
-     xcp = new XCPotential(cd_,s_.ctrl.xc);
+     xcp_ = new XCPotential(cd_,s_.ctrl.xc);
   } 
   // check mgga YY
-  s_.ctrl.mgga = (xcp->xcf()->ismGGA());
-
+  s_.ctrl.mgga = (xcp_->xcf()->ismGGA());
   if (s_.ctrl.has_absorbing_potential) {
     abp_ = new AbsorbingPotential(cd_,s_.ctrl.absorbing_potential);
   }
@@ -303,7 +302,7 @@ EnergyFunctional::~EnergyFunctional(void) {
 
   if(s_.ctrl.vdw == "D3") dftd3_end();
   
-  delete xcp;
+  delete xcp_;
   delete el_enth_;
   for ( int ispin = 0; ispin < wf_.nspin(); ispin++ )
     if (wf_.spinactive(ispin)) {
@@ -416,10 +415,10 @@ void EnergyFunctional::update_vhxc(void) {
   
   //fill(v_r[ispin].begin(),v_r[ispin].end(),0.0);
 
-  xcp->update(v_r, vxc_tau); //YY
+  xcp_->update(v_r, vxc_tau); //YY
   if (s_.ctrl.has_absorbing_potential && s_.ctrl.tddft_involved) {
   abp_->update(vabs_r); } // YY
-  exc_ = xcp->exc();
+  exc_ = xcp_->exc();
   tmap["exc"].stop();
 
 
@@ -1041,10 +1040,10 @@ void EnergyFunctional::update_harris(void) {
    }
   
    // update XC energy and potential
-  xcp->update(v_r, vxc_tau); //YY
+  xcp_->update(v_r, vxc_tau); //YY
   if (s_.ctrl.has_absorbing_potential && s_.ctrl.tddft_involved) {
   abp_->update(vabs_r); } // YY
-  eharris_ = xcp->exc();
+  eharris_ = xcp_->exc();
 
   // compute local potential energy: 
   // integral of el. charge times ionic local pot.
@@ -1118,8 +1117,8 @@ void EnergyFunctional::update_exc_ehart_eps(void)
 
   // update XC energy and potential
   tmap["exc"].start();
-  xcp->update_exc(v_r);
-  exc_ = xcp->exc();
+  xcp_->update_exc(v_r);
+  exc_ = xcp_->exc();
   tmap["exc"].stop();
 
   // compute local potential energy:
@@ -1491,7 +1490,7 @@ double EnergyFunctional::energy(Wavefunction& psi, bool compute_hpsi, Wavefuncti
   
   // Stress from exchange-correlation
   if ( compute_stress ) {
-    xcp->compute_stress(sigma_exc);
+    xcp_->compute_stress(sigma_exc);
   }
   
   // zero ionic forces
