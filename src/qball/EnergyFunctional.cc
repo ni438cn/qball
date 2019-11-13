@@ -52,8 +52,8 @@
 using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
-EnergyFunctional::EnergyFunctional(const Sample& s, const Wavefunction& wf, ChargeDensity& cd)
-    : s_(s), wf_(wf), cd_(cd) {
+EnergyFunctional::EnergyFunctional( Sample& s, const Wavefunction& wf, ChargeDensity& cd)
+    : s_(s), wf_(wf), cd_(cd) {   // remove const from Sample
   const AtomSet& atoms = s_.atoms;
   
   const bool compute_stress = ( s_.ctrl.stress == "ON" );  // if stress off, don't store dtwnl
@@ -85,6 +85,12 @@ EnergyFunctional::EnergyFunctional(const Sample& s, const Wavefunction& wf, Char
   }
 
   vabs_r.resize(vft->np012loc()); // YY for absorbing potential
+
+  vxc_tau.resize(wf.nspin()); //YY
+  for ( int ispin = 0; ispin < wf.nspin(); ispin++ )
+  {
+    vxc_tau[ispin].resize(vft->np012loc());
+  } //YY
 
   tmp_r.resize(vft->np012loc());
 
@@ -134,12 +140,18 @@ EnergyFunctional::EnergyFunctional(const Sample& s, const Wavefunction& wf, Char
   else
   {
      xcp = new XCPotential(cd_,s_.ctrl.xc);
-  }
-  
-  //
+  } 
+  // check mgga YY
+  s_.ctrl.mgga = (xcp->xcf()->ismGGA());
+
   if (s_.ctrl.has_absorbing_potential) {
     abp_ = new AbsorbingPotential(cd_,s_.ctrl.absorbing_potential);
   }
+  //
+  if ( s_.ctxt_.mype()==0 ) { 
+    //cout << s_.ctrl.mgga << endl;
+    cout << "YY: Is the functional mGGA: " << (s_.ctrl.mgga ? "yes" : "no" )<< endl;
+  } //YY
 
   vp = NULL;
   if(s.ctrl.vector_potential_dynamics != VectorPotential::Dynamics::NONE || norm(s.ctrl.initial_vector_potential) > 1e-15 || norm(s.ctrl.laser_amp) > 1e-15) {
@@ -398,10 +410,13 @@ void EnergyFunctional::update_vhxc(void) {
   for ( int ispin = 0; ispin < wf_.nspin(); ispin++ )
     for (int i=0; i<vft->np012loc(); i++)
       v_r[ispin][i] = 0.0;
+  for ( int ispin = 0; ispin < wf_.nspin(); ispin++ ) //YY
+    for (int i=0; i<vft->np012loc(); i++)
+      vxc_tau[ispin][i] = 0.0; //YY
   
   //fill(v_r[ispin].begin(),v_r[ispin].end(),0.0);
 
-  xcp->update(v_r);
+  xcp->update(v_r, vxc_tau); //YY
   if (s_.ctrl.has_absorbing_potential && s_.ctrl.tddft_involved) {
   abp_->update(vabs_r); } // YY
   exc_ = xcp->exc();
@@ -1026,7 +1041,7 @@ void EnergyFunctional::update_harris(void) {
    }
   
    // update XC energy and potential
-  xcp->update(v_r);
+  xcp->update(v_r, vxc_tau); //YY
   if (s_.ctrl.has_absorbing_potential && s_.ctrl.tddft_involved) {
   abp_->update(vabs_r); } // YY
   eharris_ = xcp->exc();
@@ -1737,9 +1752,11 @@ double EnergyFunctional::energy(Wavefunction& psi, bool compute_hpsi, Wavefuncti
 
 	    if(vp) delete [] kpg2;
 	    
-            sd.rs_mul_add(*ft[ispin][ikp], &v_r[ispin][0], sdp);
+            sd.rs_mul_add(*ft[ispin][ikp], &v_r[ispin][0], sdp); //YY
             if (s_.ctrl.has_absorbing_potential && s_.ctrl.tddft_involved) {
             sd.rs_mul_add(*ft[ispin][ikp], &vabs_r[0], sdp);} // YY
+	    if (s_.ctrl.mgga)
+              sd.kinetic_hpsi(*ft[ispin][ikp], &vxc_tau[ispin][0], sdp); // YY: metagga gKS term
           }
         }
       }
