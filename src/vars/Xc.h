@@ -38,6 +38,10 @@
 
 #include <qball/Sample.h>
 
+#ifdef HAVE_LIBXC //YY
+#include "xc.h"
+#endif //YY
+
 class Xc : public Var
 {
   Sample *s;
@@ -48,15 +52,26 @@ class Xc : public Var
 
   int set ( int argc, char **argv )
   {
-    if ( argc != 2 )
+    string v; //YY
+    v = argv[1];
+#ifdef HAVE_LIBXC
+    if ( (argc > 2) && (v == "LIBXC") ) {
+      for ( int n = 2; n < argc ; n ++ ) {
+        v = v + " " + argv[n];
+        }
+    }
+#else
+    if (false) {
+    }
+#endif
+    else if ( argc != 2 )
     {
       if ( ui->oncoutpe() )
       cout << " <ERROR> xc takes only one value </ERROR>" << endl;
       return 1;
     }
     
-    string v = argv[1];
-    if ( !( v == "LDA" || v == "PBE" || v == "PBEsol" || v == "PBErev" || v == "BLYP" ) )
+    else if ( !( v == "LDA" || v == "PBE" || v == "PBEsol" || v == "PBErev" || v == "BLYP" ) )
     {
       if ( ui->oncoutpe() )
         cout << " <ERROR> xc must be LDA, PBE, PBEsol, PBErev or BLYP </ERROR>" << endl;
@@ -66,7 +81,7 @@ class Xc : public Var
     s->ctrl.xc= v;
     
     return 0;
-  }
+  } //YY Allow LIBXC
 
   string print (void) const
   {
