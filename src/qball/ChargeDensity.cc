@@ -48,7 +48,7 @@ extern "C" void cdLoop2(const int size, double* v1, double* v2, double* vout);
 using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
-ChargeDensity::ChargeDensity(const Sample& s) : wf_((Wavefunction&)s.wf),
+ChargeDensity::ChargeDensity( Sample& s) : wf_((Wavefunction&)s.wf),
                                                 atoms_((AtomSet&)s.atoms),
                                                 ctxt_(s.wf.context())
 {
@@ -56,19 +56,21 @@ ChargeDensity::ChargeDensity(const Sample& s) : wf_((Wavefunction&)s.wf),
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-ChargeDensity::ChargeDensity(const Sample& s, Wavefunction& cdwf) : wf_(cdwf),
+ChargeDensity::ChargeDensity( Sample& s, Wavefunction& cdwf) : wf_(cdwf),
                                                                     atoms_((AtomSet&)s.atoms),
                                                                     ctxt_(cdwf.context())
 {
    initialize(s);
 }
 ////////////////////////////////////////////////////////////////////////////////
-void ChargeDensity::initialize(const Sample& s)
+void ChargeDensity::initialize( Sample& s)
 {
    ultrasoft_ = s.ctrl.ultrasoft;
    nlcc_ = s.ctrl.nlcc;
    tddft_involved_ = s.ctrl.tddft_involved;
    
+   mgga_ = &s.ctrl.mgga; // YY
+
    highmem_ = false;
    if (s.ctrl.extra_memory >= 9)
       highmem_ = true;
@@ -112,7 +114,17 @@ void ChargeDensity::initialize(const Sample& s)
      rhog[ispin].resize(vbasis_->localsize());
   }
   rhotmp.resize(vft_->np012loc());
-  
+  // YY for metagga
+  taur.resize(wf_.nspin());
+  taug.resize(wf_.nspin());
+  for ( int ispin = 0; ispin < wf_.nspin(); ispin++ )
+  {
+    taur[ispin].resize(vft_->np012loc());
+    taug[ispin].resize(vbasis_->localsize());
+  }
+  tautmp.resize(vft_->np012loc());
+  // YY
+
   if (nlcc_)
   {
      xcrhor.resize(wf_.nspin());
@@ -150,7 +162,7 @@ void ChargeDensity::initialize(const Sample& s)
   }
 }
 ////////////////////////////////////////////////////////////////////////////////
-void ChargeDensity::initializeSymmetries(const Sample& s)
+void ChargeDensity::initializeSymmetries( Sample& s)
 {
    int np012loc = vft_->np012loc();
    symindexloc.resize(np012loc);
@@ -553,6 +565,8 @@ void ChargeDensity::update_density() {
   }
   if (nlcc_)
      add_nlccden();
+  if (*mgga_)
+     this->update_kinetic_energy_density();
 }
 ////////////////////////////////////////////////////////////////////////////////
 void ChargeDensity::update_rhor(void) {
@@ -577,6 +591,8 @@ void ChargeDensity::update_rhor(void) {
   }
   if (nlcc_)
      add_nlccden();
+  if (*mgga_)
+     this->update_taur();
 }
 ////////////////////////////////////////////////////////////////////////////////
 void ChargeDensity::reshape_rhor(const Context& oldvctxt, const Context& newvctxt) {
@@ -981,3 +997,101 @@ void ChargeDensity::print_memory(ostream& os, double& totsum, double& locsum) co
   }
 
 }
+//////////////////////////////////////////////////////////////// YY
+void ChargeDensity::update_taur(void)
+{
+  // recalculate taur from taug
+  assert(taur.size() == wf_.nspin());
+  const double omega = vbasis_->cell().volume();
+  assert(omega!=0.0);
+  const double omega_inv = 1.0 / omega;
+
+  for ( int ispin = 0; ispin < wf_.nspin(); ispin++ )
+  {
+    assert(taur[ispin].size() == vft_->np012loc() );
+    assert(tautmp.size() == vft_->np012loc() );
+
+    vft_->backward(&taug[ispin][0],&tautmp[0]);
+
+    const int taur_size = taur[ispin].size();
+    double *const ptaur = &taur[ispin][0];
+
+    {
+      #pragma omp parallel for
+      for ( int i = 0; i < taur_size; i++ )
+        ptaur[i] = tautmp[i].real() * omega_inv;
+    }
+  }
+}
+///////////////////////////////////////////////////////////////////
+void ChargeDensity::update_kinetic_energy_density(void)
+{
+  assert(taur.size() == wf_.nspin());
+  const double omega = vbasis_->cell().volume();
+  assert(omega != 0.0);
+  const double omega_inv = 1.0 / omega;
+
+  for ( int ispin = 0; ispin < wf_.nspin(); ispin++ )
+  {
+    assert(taur[ispin].size() == vft_->np012loc() );
+    assert(tautmp.size() == vft_->np012loc() );
+
+    //  fill(taur[ispin].begin(),taur[ispin].end(),0.0);
+    for ( int i = 0; i < vft_->np012loc(); i++ )
+      taur[ispin][i] = 0.0;
+
+    if ( wf_.spinactive(ispin)) {
+      tmap["kinetic_energy_density_compute"].start();
+      for ( int ikp = 0; ikp < wf_.nkp(); ikp++ )
+      {
+        if (wf_.kptactive(ikp)) {
+          assert(wf_.sd(ispin,ikp) != 0);
+          assert(taur[ispin].size()==ft_[ispin][ikp]->np012loc());
+          double wt = wf_.weight(ikp)/wf_.weightsum();
+          wf_.sd(ispin,ikp)->compute_kinetic_energy_density(*ft_[ispin][ikp],
+              *vbasis_, wt, &taur[ispin][0]);
+        }
+      }
+      tmap["kinetic_energy_density_compute"].stop();
+    }
+
+    // sum over kpoints: sum along rows of wfcontext
+    tmap["kinetic_energy_density_rowsum"].start();
+    wf_.wfcontext()->dsum('r',vft_->np012loc(),1,
+      &taur[ispin][0],vft_->np012loc());
+    tmap["kinetic_energy_density_rowsum"].stop();
+
+    // check integral of kinetic energy density
+    // compute Fourier coefficients of the kinetic energy density
+    
+    double sum = 0.0;
+    const int taur_size = taur[ispin].size();
+    const double *const ptaur = &taur[ispin][0];
+    tmap["kinetic_energy_density_integral"].start();
+    #pragma omp parallel for reduction(+:sum)
+    for ( int i = 0; i < taur_size; i++ )
+    {
+      const double pta = ptaur[i];
+      sum += pta;
+      tautmp[i] = complex<double>(omega * pta, 0.0);
+    }
+    sum *= omega / vft_->np012();
+    // sum on all indices except spin: sum along columns of spincontext
+    if (wf_.spinactive(ispin)) {
+      wf_.spincontext(ispin)->dsum('c',1,1,&sum,1);
+      if ( ctxt_.onpe0() )
+      {
+        cout.setf(ios::fixed,ios::floatfield);
+        cout.setf(ios::right,ios::adjustfield);
+        cout << "  <!-- total_kinetic_energy_density: " << setprecision(8) << sum
+             << ", spin = " << ispin << " -->" << endl;
+      }
+    }
+    tmap["kinetic_energy_density_integral"].stop();
+
+    tmap["kinetic_energy_density_vft"].start();
+    vft_->forward(&tautmp[0],&taug[ispin][0]);
+    tmap["kinetic_energy_density_vft"].stop();
+
+  }
+} //YY
