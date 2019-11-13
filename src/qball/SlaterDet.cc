@@ -967,7 +967,59 @@ void SlaterDet::compute_density(FourierTransform& ft, double weight, std::comple
     }
   
 }
+////////////////////////// YY kinetic energy density for mgga
+void SlaterDet::compute_kinetic_energy_density(FourierTransform& ft,
+Basis& vbasis,  double weight, double* tau) const
+{
+  //Timer tm_ft, tm_rhosum;
+  // compute density of the states residing on my column of ctxt_
+  assert(occ_.size() == c_.n());
+  vector<complex<double> > tmp(basis_->localsize());
+  vector<complex<double> > tmpr(ft.np012loc());
+  vector<double> tautmp(ft.np012loc());
 
+  assert(basis_->cell().volume() > 0.0);
+  //cout << vbasis.cell().volume() << basis_->cell().volume() << endl;
+  const double omega_inv = 1.0 / basis_->cell().volume();
+  const double prefac = weight / basis_->cell().volume();
+  const int np012loc = ft.np012loc();
+
+
+  {
+     // only one transform at a time
+     for ( int lj=0; lj < c_.nblocks(); lj++ )
+     {
+        for ( int jj=0; jj < c_.nbs(lj); jj++ )
+        {
+           // global state index
+           const int nn = c_.j(lj,jj);
+           const double fac = 0.5 * prefac * occ_[nn];
+           const int norig = lj*c_.nb()+jj;
+           const complex<double> *cptr = c_.cvalptr(norig*c_.mloc());
+           if ( fac > 0.0 ) {
+              for ( int i = 0; i < np012loc; i++ )
+                tautmp[i] = 0.0;
+              for ( int j = 0; j < 3; j++)
+              {
+                const double *kpgxj = basis_->kpgx_ptr(j);
+                for ( int i = 0; i < basis_->localsize(); i++ )
+                  tmp[i] = complex<double>(0.0, kpgxj[i]) * cptr[i];
+
+                ft.backward(&tmp[0],&tmpr[0]);
+
+                for ( int i = 0; i < np012loc; i++ )
+                  tautmp[i] += (real(tmpr[i])*real(tmpr[i]) + imag(tmpr[i])*imag(tmpr[i]));
+              }
+              for ( int i = 0; i < np012loc; i++)
+                tau[i] += fac * tautmp[i];
+
+
+           }
+        }
+     }
+  }
+}
+// YY
 ////////////////////////////////////////////////////////////////////////////////
 void SlaterDet::rs_mul_add(FourierTransform& ft, 
  const double* v, SlaterDet& sdp) const {
@@ -1078,7 +1130,55 @@ vector<complex<double> > tmp(ft.np012loc());
   }
   
 }
+//YY
+////////////////////////////////////////////////////////////////////////////////
+void SlaterDet::kinetic_hpsi(FourierTransform& ft,
+  const double* vxc_tau, SlaterDet& sdp) const
+{
+  //   the metagga term in generalized KS equation
+  //   - 0.5 * div ( Vtau * grad(psi))
+  //   fft is used to calculate grad and div
+  vector<complex<double> > tmp(ft.np012loc());
+  vector<complex<double> > ctmp(2 * c_.mloc());
 
+  const double omega_inv = 1.0 / basis_->cell().volume();
+  const double omega_inv_sqrt = sqrt(omega_inv);
+  const double fac = -0.5;
+
+  const int np012loc = ft.np012loc();
+  const int mloc = c_.mloc();
+  double* dcp = (double*) sdp.c().valptr();
+  {
+    // only one transform at a time
+    for ( int n = 0; n < nstloc(); n++ )
+    {
+      const complex<double> *cptr = c_.cvalptr();
+      for ( int j = 0; j < 3; j++)
+      {
+        const double *kpgxj = basis_->kpgx_ptr(j);
+        for ( int i = 0; i < basis_->localsize(); i++ ) {
+          ctmp[i] = complex<double>(0.0, kpgxj[i]) * cptr[i+n*mloc];
+        }
+
+        ft.backward(&ctmp[0],&tmp[0]);
+
+        for ( int i = 0; i < np012loc; i++ )
+          tmp[i] *= vxc_tau[i];
+
+        //while(true) {}
+        ft.forward(&tmp[0], &ctmp[0]);
+        for ( int i = 0; i < basis_->localsize(); i++ )
+          ctmp[i] = fac * complex<double>(0.0, kpgxj[i]) * ctmp[i];
+
+        int len = 2 * mloc;
+        int inc1 = 1;
+        double alpha = 1.0;
+        daxpy(&len,&alpha,(double*)&ctmp[0],&inc1,&dcp[2*n*mloc],&inc1);
+      }
+    }
+  }
+}
+//YY
 ////////////////////////////////////////////////////////////////////////////////
 void SlaterDet::gram() {
 

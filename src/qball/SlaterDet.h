@@ -112,8 +112,14 @@ class SlaterDet {
   void copyTo(SlaterDet* newsd);
   void compute_density(FourierTransform& ft, double weight, double* rho) const;
   void compute_density(FourierTransform& ft, double weight, std::complex<double> * rho, const SlaterDet & sd2_) const;
+
+  void compute_kinetic_energy_density(FourierTransform& ft, Basis& vbasis, double weight, double* tau) const; // YY
+
   void rs_mul_add(FourierTransform& ft, const double* v, SlaterDet& sdp) const;
   void rs_mul_add(FourierTransform& ft, const std::complex<double> * v, SlaterDet& sdp) const;
+
+  void kinetic_hpsi(FourierTransform& ft, const double* vxc_tau, SlaterDet& sdp) const; // YY
+
   void apply_electric_field(int e_direction, double e_strength) ; // YY
   void randomize(double amplitude);
   void randomize_real(double amplitude);
