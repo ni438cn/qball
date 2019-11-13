@@ -11,4 +11,9 @@ install-sh
 missing
 src/Makefile.in
 testsuite/Makefile.in
+**/.deps
+**/Makefile
+stamp-h1
+test_yy/**
+build_dogwood/**
 *~
