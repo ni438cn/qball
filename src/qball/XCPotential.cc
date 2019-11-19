@@ -53,8 +53,18 @@ XCPotential::XCPotential(ChargeDensity& cd, const string functional_name, Charge
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void XCPotential::initialize(string functional_name)
-{
+void XCPotential::initialize(string functional_name_input)
+{ 
+
+  string functional_name;
+  string tempbuf;
+  stringstream ss(functional_name_input);
+  vector<string> functional_full_name;
+  while ( ss >> tempbuf )
+    functional_full_name.push_back(tempbuf);
+
+  functional_name = functional_full_name[0];
+
   if ( functional_name == "LDA" ) {
      if (cd_.nlcc())
         xcf_ = new LDAFunctional(cd_.xcrhor);
@@ -85,6 +95,17 @@ void XCPotential::initialize(string functional_name)
      else
         xcf_ = new BLYPFunctional(cd_.rhor);
   }
+  //YY
+ else if ( functional_name == "LIBXC" )
+  { 
+#ifdef HAVE_LIBXC
+     if (cd_.nlcc())
+        xcf_ = new LIBXCFunctional(cd_.xcrhor, cd_.taur, functional_name_input);
+     else
+        xcf_ = new LIBXCFunctional(cd_.rhor, cd_.taur, functional_name_input);
+#endif
+  } //YY 
+
   else {
     throw XCPotentialException("unknown functional name");
   }
@@ -109,7 +130,7 @@ XCPotential::~XCPotential(void)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void XCPotential::update(vector<vector<double> >& vr)
+void XCPotential::update(vector<vector<double> >& vr, vector<vector<double> >& vxc_tau) //YY
 {
   // compute exchange-correlation energy and add vxc potential to vr[ispin][ir]
   
@@ -425,6 +446,35 @@ void XCPotential::update(vector<vector<double> >& vr)
     exc_ = tsum;
 
   }
+   if ( xcf_->ismGGA() ) //YY
+   {
+     //double esum=0.0;
+     //double dsum=0.0;
+     if ( nspin_ == 1 )
+     {
+       const double *const vxc3 = xcf_->vxc3;
+       const double *const tau = xcf_->tau;
+       {
+         for ( int ir = 0; ir < np012loc_; ir++ )
+         {
+           vxc_tau[0][ir] += vxc3[ir];
+           //esum -= vxc3[ir] * tau[ir];
+           //dsum -= vxc3[ir] * tau[ir];
+         }
+       }
+     }
+     else
+     {
+       // spin not implement
+     }
+     //double sum[2], tsum[2];
+     //sum[0] = esum * vbasis_.cell().volume() / vft_.np012();
+     //sum[1] = dsum * vbasis_.cell().volume() / vft_.np012();
+     //MPI_Allreduce(&sum,&tsum,2,MPI_DOUBLE,MPI_SUM,vbasis_.comm());
+     //exc_ += tsum[0];
+     //dxc_ += tsum[1];
+     //std::cout << tsum[0] << " " << tsum[1] << std::endl;
+   } //YY
 }
 ////////////////////////////////////////////////////////////////////////////////
 // AS: modified version of XCPotential::update(vector<vector<double> >& vr) which

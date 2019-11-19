@@ -37,6 +37,11 @@
 #include <functionals/PBESolFunctional.h>
 #include <functionals/PBERevFunctional.h>
 #include <functionals/BLYPFunctional.h>
+
+#ifdef HAVE_LIBXC //YY
+#include <functionals/LIBXCFunctional.h>
+#endif //YY
+
 #include <vector>
 #include <valarray>
 #include <complex>
@@ -75,7 +80,7 @@ class XCPotential
   XCPotential(ChargeDensity& cd, const string functional_name);
   XCPotential(ChargeDensity& cd, const string functional_name, ChargeDensity& cd_ecalc);
   ~XCPotential();
-  void update(vector<vector<double> >& vr);
+  void update(vector<vector<double> >& vr, vector<vector<double> >& vxc_tau);
   void update_exc(vector<vector<double> >& vr);
   void compute_stress(valarray<double>& sigma_exc);
   double exc(void) { return exc_; }

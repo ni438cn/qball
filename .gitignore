@@ -11,4 +11,13 @@ install-sh
 missing
 src/Makefile.in
 testsuite/Makefile.in
+**/.deps
+**/Makefile
+**.mod
+**.a
+**.o
+stamp-h1
+test_yy/**
+build_dogwood/**
+src/tests/test**
 *~

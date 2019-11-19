@@ -52,8 +52,8 @@
 using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
-EnergyFunctional::EnergyFunctional(const Sample& s, const Wavefunction& wf, ChargeDensity& cd)
-    : s_(s), wf_(wf), cd_(cd) {
+EnergyFunctional::EnergyFunctional( Sample& s, const Wavefunction& wf, ChargeDensity& cd)
+    : s_(s), wf_(wf), cd_(cd) {   // remove const from Sample
   const AtomSet& atoms = s_.atoms;
   
   const bool compute_stress = ( s_.ctrl.stress == "ON" );  // if stress off, don't store dtwnl
@@ -85,6 +85,12 @@ EnergyFunctional::EnergyFunctional(const Sample& s, const Wavefunction& wf, Char
   }
 
   vabs_r.resize(vft->np012loc()); // YY for absorbing potential
+
+  vxc_tau.resize(wf.nspin()); //YY
+  for ( int ispin = 0; ispin < wf.nspin(); ispin++ )
+  {
+    vxc_tau[ispin].resize(vft->np012loc());
+  } //YY
 
   tmp_r.resize(vft->np012loc());
 
@@ -129,17 +135,22 @@ EnergyFunctional::EnergyFunctional(const Sample& s, const Wavefunction& wf, Char
      update_hamiltonian();
 
      // AS: the charge density based on hamil_wf has to be used
-     xcp = new XCPotential((*hamil_cd_),s_.ctrl.xc,cd_);
+     xcp_ = new XCPotential((*hamil_cd_),s_.ctrl.xc,cd_);
   }
   else
   {
-     xcp = new XCPotential(cd_,s_.ctrl.xc);
-  }
-  
-  //
+     xcp_ = new XCPotential(cd_,s_.ctrl.xc);
+  } 
+  // check mgga YY
+  s_.ctrl.mgga = (xcp_->xcf()->ismGGA());
   if (s_.ctrl.has_absorbing_potential) {
     abp_ = new AbsorbingPotential(cd_,s_.ctrl.absorbing_potential);
   }
+  //
+  if ( s_.ctxt_.mype()==0 ) { 
+    //cout << s_.ctrl.mgga << endl;
+    cout << "YY: Is the functional mGGA: " << (s_.ctrl.mgga ? "yes" : "no" )<< endl;
+  } //YY
 
   vp = NULL;
   if(s.ctrl.vector_potential_dynamics != VectorPotential::Dynamics::NONE || norm(s.ctrl.initial_vector_potential) > 1e-15 || norm(s.ctrl.laser_amp) > 1e-15) {
@@ -291,7 +302,7 @@ EnergyFunctional::~EnergyFunctional(void) {
 
   if(s_.ctrl.vdw == "D3") dftd3_end();
   
-  delete xcp;
+  delete xcp_;
   delete el_enth_;
   for ( int ispin = 0; ispin < wf_.nspin(); ispin++ )
     if (wf_.spinactive(ispin)) {
@@ -398,13 +409,16 @@ void EnergyFunctional::update_vhxc(void) {
   for ( int ispin = 0; ispin < wf_.nspin(); ispin++ )
     for (int i=0; i<vft->np012loc(); i++)
       v_r[ispin][i] = 0.0;
+  for ( int ispin = 0; ispin < wf_.nspin(); ispin++ ) //YY
+    for (int i=0; i<vft->np012loc(); i++)
+      vxc_tau[ispin][i] = 0.0; //YY
   
   //fill(v_r[ispin].begin(),v_r[ispin].end(),0.0);
 
-  xcp->update(v_r);
+  xcp_->update(v_r, vxc_tau); //YY
   if (s_.ctrl.has_absorbing_potential && s_.ctrl.tddft_involved) {
   abp_->update(vabs_r); } // YY
-  exc_ = xcp->exc();
+  exc_ = xcp_->exc();
   tmap["exc"].stop();
 
 
@@ -1026,10 +1040,10 @@ void EnergyFunctional::update_harris(void) {
    }
   
    // update XC energy and potential
-  xcp->update(v_r);
+  xcp_->update(v_r, vxc_tau); //YY
   if (s_.ctrl.has_absorbing_potential && s_.ctrl.tddft_involved) {
   abp_->update(vabs_r); } // YY
-  eharris_ = xcp->exc();
+  eharris_ = xcp_->exc();
 
   // compute local potential energy: 
   // integral of el. charge times ionic local pot.
@@ -1103,8 +1117,8 @@ void EnergyFunctional::update_exc_ehart_eps(void)
 
   // update XC energy and potential
   tmap["exc"].start();
-  xcp->update_exc(v_r);
-  exc_ = xcp->exc();
+  xcp_->update_exc(v_r);
+  exc_ = xcp_->exc();
   tmap["exc"].stop();
 
   // compute local potential energy:
@@ -1476,7 +1490,7 @@ double EnergyFunctional::energy(Wavefunction& psi, bool compute_hpsi, Wavefuncti
   
   // Stress from exchange-correlation
   if ( compute_stress ) {
-    xcp->compute_stress(sigma_exc);
+    xcp_->compute_stress(sigma_exc);
   }
   
   // zero ionic forces
@@ -1737,9 +1751,11 @@ double EnergyFunctional::energy(Wavefunction& psi, bool compute_hpsi, Wavefuncti
 
 	    if(vp) delete [] kpg2;
 	    
-            sd.rs_mul_add(*ft[ispin][ikp], &v_r[ispin][0], sdp);
+            sd.rs_mul_add(*ft[ispin][ikp], &v_r[ispin][0], sdp); //YY
             if (s_.ctrl.has_absorbing_potential && s_.ctrl.tddft_involved) {
             sd.rs_mul_add(*ft[ispin][ikp], &vabs_r[0], sdp);} // YY
+	    if (s_.ctrl.mgga)
+              sd.kinetic_hpsi(*ft[ispin][ikp], &vxc_tau[ispin][0], sdp); // YY: metagga gKS term
           }
         }
       }

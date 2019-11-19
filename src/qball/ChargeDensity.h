@@ -59,6 +59,7 @@ class ChargeDensity {
   int np0v_, np1v_, np2v_;
   vector<vector<FourierTransform*> > ft_; // ft_[ispin][ikp];
   valarray<complex<double> > rhotmp;
+  valarray<complex<double> > tautmp; //YY
   vector<int> symindexloc;
   vector<int> symmultloc;
   int nsym_;
@@ -67,13 +68,14 @@ class ChargeDensity {
   bool highmem_;
   bool nlcc_;
   bool tddft_involved_;
+  bool* mgga_; //YY
   vector<vector<complex<double> > > qnmg_;
   vector<vector<complex<double> > > sfactloc_;
   vector<double> rhornlcc_; 
   double nelectrons_;
     
-  void initialize(const Sample& s);
-  void initializeSymmetries(const Sample& s);
+  void initialize( Sample& s);
+  void initializeSymmetries( Sample& s);
   
   public:
   
@@ -81,6 +83,12 @@ class ChargeDensity {
 
   vector<vector<double> > rhor; // rhor[ispin][i]
   vector<vector<complex<double> > > rhog; // rhog[ispin][ig]
+
+  // kinetic energy density YY
+  vector<vector<double> > taur; // taur[ispin][i]
+  vector<vector<std::complex<double> > > taug; // taug[ispin][ig]
+  // YY
+
   vector<vector<double> > xcrhor; 
   vector<complex<double> > rhognlcc; 
   vector<vector<complex<double> > > xcrhog; 
@@ -91,6 +99,11 @@ class ChargeDensity {
   
   void update_density();
   void update_rhor(void);
+
+  // YY
+  void update_kinetic_energy_density(void);
+  void update_taur(void);
+  // YY
   
   Basis* vbasis(void) const { return vbasis_; }
   const Context& vcontext(void) const { return vcontext_; }
@@ -106,8 +119,8 @@ class ChargeDensity {
   void print_memory(ostream&os, double& totsum, double& locsum) const;
   void print_timing();
   
-  ChargeDensity(const Sample& s);
-  ChargeDensity(const Sample& s, Wavefunction& cdwf);
+  ChargeDensity( Sample& s);
+  ChargeDensity( Sample& s, Wavefunction& cdwf);
   ~ChargeDensity();
 };
 #endif
