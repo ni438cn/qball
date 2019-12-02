@@ -49,7 +49,7 @@ int LoadCmd::action(int argc, char **argv) {
 
   if ( !(argc>=2 && argc<=4 ) ) {
     if ( ui->oncoutpe() )
-      cout << "  <!-- use: load [-dump|-fast|-states|-text|-xml] [-serial] filename -->" 
+      cout << "  <!-- use: load [-dump|-fast|-states|-proj|-text|-xml] [-serial] filename -->" 
            << endl;
     return 1;
   }
@@ -72,6 +72,8 @@ int LoadCmd::action(int argc, char **argv) {
       encoding = "fast";
     else if ( arg=="-states" )
       encoding = "states";
+    else if ( arg=="-proj" )
+      encoding = "proj";
     else if ( arg=="-states-old" )
       encoding = "states-old";
     else if ( arg=="-xml" )
@@ -520,6 +522,13 @@ int LoadCmd::action(int argc, char **argv) {
         cout << "<!-- LoadCmd:  serial flag only used with xml input, ignoring. -->" << endl;
 
     }
+  ///// PROJ STATES /////
+  if (encoding == "proj") {
+  new Wavefunction(s->wf);
+  s->proj_wf = new Wavefunction(s->wf);
+  *(s->proj_wf) = s->wf;
+  (*(s->proj_wf)).read_states(filestr);
+  }
   /////  OLD STATES CHECKPOINTING  /////
   else if (encoding == "states-old" ) {
      s->wf.read_states_old(filestr);

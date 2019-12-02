@@ -99,6 +99,8 @@ EhrenSampleStepper::~EhrenSampleStepper()
 ////////////////////////////////////////////////////////////////////////////////
 void EhrenSampleStepper::step(int niter)
 {
+  const Context& ctxt = s_.ctxt_;  //DCY
+  const bool onpe0 = ctxt.onpe0(); //DCY
   const bool oncoutpe = s_.ctxt_.oncoutpe();
   if (!tddft_involved_)
   {
@@ -641,7 +643,7 @@ void EhrenSampleStepper::step(int niter)
        Wavefunction* to_diag_wf1 = new Wavefunction(s_.wf);
        (*to_diag_wf1) = (s_.wf);
        tmap["diag"].start();
-       (*to_diag_wf1).diag(dwf,false);
+       (*to_diag_wf1).diag(dwf,true);  //DCY changed "false" to "true"
        tmap["diag"].stop();
 
        if ( oncoutpe )
@@ -671,7 +673,67 @@ void EhrenSampleStepper::step(int niter)
        if ( oncoutpe ) cout << "</" << wf_dyn << " expectation set>" << endl;
        delete(to_diag_wf1);
     }
-             
+
+// DCY print projected occupations to output file
+// // if saveprojfreq variable set, save cij matrices in text format
+// //CS
+    if (s_.ctrl.saveprojfreq > 0)
+    {
+     for ( int ispin = 0; ispin < (wf).nspin(); ispin++ )
+      {
+       for ( int ikp = 0; ikp < (wf).nkp(); ikp++ )
+        {
+         if (s_.ctrl.mditer%s_.ctrl.saveprojfreq == 0 || s_.ctrl.mditer == 1)
+          {
+          ComplexMatrix ortho(wf.sd(ispin,ikp)->context(),(wf.sd(ispin,ikp)->c()).n(),(wf.sd(ispin,ikp)->c()).n(),(wf.sd(ispin,ikp)->c()).nb(),(wf.sd(ispin,ikp)->c()).nb());
+
+	  tmap["gemm"].start();
+          ortho.gemm('c','n',1.0,(*s_.proj_wf).sd(ispin,ikp)->c(),(wf).sd(ispin,ikp)->c(),0.0);
+	  tmap["gemm"].stop();
+
+          DoubleMatrix ortho_proxy(ortho);
+
+          std::vector<double> occ_result, occ_current, occ_result2;
+          occ_result.resize((wf.sd(ispin,ikp)->c()).n());
+          occ_result2.resize((wf.sd(ispin,ikp)->c()).n());
+          occ_current.resize((wf.sd(ispin,ikp)->c()).n());
+          occ_result.clear();
+          occ_current.clear();
+
+          double ehp_count=0.0;
+          double ehp_count2=0.0;
+
+          if ( onpe0 )
+          {
+             cout << "<projections> " << endl;
+             for (int i=0; i<(wf.sd(ispin,ikp)->c()).n(); i++) {
+               occ_current[i]=(wf.sd(ispin,ikp))->occ(i);
+             }
+          }
+
+          tmap["sum_col"].start();
+          ortho.sum_columns_square_occ(occ_result, occ_current);
+          tmap["sum_col"].stop();
+
+          tmap["sum_ortho"].start();
+
+          tmap["sum_ortho"].stop();
+
+          if ( onpe0 )
+          {
+            for (int i=0; i<(wf.sd(ispin,ikp)->c()).n(); i++)
+            {
+              cout << s_.ctrl.mditer << " " << i << " " << occ_result[i] << endl;
+              ehp_count += occ_result[i];
+            }
+            cout << "projsum = " << ehp_count << endl;
+          }
+       }
+      }
+     }
+   }
+	//DCY //CS
+
     // AS: calculation and output of < psi(t) | psi(t) > , i.e., the orthonormalization
     // AS: code adopted from SlaterDet::gram(void)
     if ( s_.ctrl.wf_diag == "EIGVAL" )

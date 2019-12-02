@@ -22,63 +22,62 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Sample.h
-//
+// SaveProjFreq.h 
+// Dillon Yost DCY
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <config.h>
+#ifndef SAVEPROJFREQ_H
+#define SAVEPROJFREQ_H
 
-#ifndef SAMPLE_H
-#define SAMPLE_H
+#include<iostream>
+#include<iomanip>
+#include<sstream>
+#include<stdlib.h>
 
-#include "AtomSet.h"
-#include "Wavefunction.h"
-#include "Control.h"
-#include "ConstraintSet.h"
-#include "SymmetrySet.h"
-#include <vector>
-#include <complex>
+#include <qball/Sample.h>
 
-class Context;
+class SaveProjFreq : public Var
+{
+  Sample *s;
 
-class Sample {
-  private:
-  
   public:
-  
-  const Context& ctxt_;
 
-  AtomSet atoms;
-  ConstraintSet constraints;
-  Wavefunction wf;
-  // AS: hamil_wf is a pointer which by default points to wf.
-  // AS: in order to construct an Hamiltonian from different wave functions (charge densities)
-  // AS: than wf, make hamil_wf point to these wave functions instead
-  Wavefunction* hamil_wf;
-  // AS: keep a copy of the wave function during Born-Oppenheimer MD when non-adiabatic overlaps are to be calculated
-  Wavefunction* previous_wf;
-  Wavefunction* proj_wf;
-  Wavefunction* wfv; // wavefunction velocity
-  Control ctrl;
-  SymmetrySet symmetries;
-  vector<vector<complex<double> > > rhog_last; // previous charge density (to avoid discontinuity in restart)
+  char const*name ( void ) const { return "saveprojfreq"; };
 
- Sample(const Context& ctxt) : ctxt_(ctxt), atoms(ctxt), constraints(ctxt), wf(ctxt), hamil_wf(0), wfv(0),
-      symmetries(ctxt) { ctrl.sigmas = 0.5; ctrl.facs = 2.0; }
-  ~Sample(void) { delete wfv; }
-  void reset(void)
+  int set ( int argc, char **argv )
   {
-    atoms.reset();
-    constraints.reset();
-    //extforces.reset();
-    wf.reset();
-    delete wfv;
+    if ( argc != 2 && argc != 3)
+    {
+      if ( ui->oncoutpe() )
+      cout << " saveprojfreq takes only one or two values" << endl;
+      return 1;
+    }
+    int v = atoi(argv[1]);
+    s->ctrl.saveprojfreq = v;
+    if (argc == 3)
+       s->ctrl.saveprojfilebase = argv[2];
+
+    return 0;
   }
 
-};
+  string print (void) const
+  {
+     ostringstream st;
+     st.setf(ios::left,ios::adjustfield);
+     st << name() << ":  ";
+     st.setf(ios::right,ios::adjustfield);
+     st << s->ctrl.saveprojfreq;
+     return st.str();
+  }
 
+  SaveProjFreq(Sample *sample) : s(sample) {
+     s->ctrl.saveprojfreq = -1 ;
+     s->ctrl.saveprojfilebase = "proj";
+  }
+};
 #endif
 
+//CS
 // Local Variables:
 // mode: c++
 // End:

@@ -56,6 +56,7 @@ noinst_HEADERS =                            \
 	RefCell.h                           \
 	RunTimer.h                          \
 	SaveDenFreq.h                       \
+        SaveProjFreq.h                      \
 	SaveFreq.h                          \
 	SaveWfFreq.h                        \
 	Smearing.h                          \
