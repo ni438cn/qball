@@ -128,6 +128,8 @@ struct Control
   int savewffreq;  // if > 0, checkpoint within iteration loop
   string savewffilebase; // optional subdirectory and filename base for density snapshots
   int savewfstate;  // if >= 0, only save this state
+  int saveprojfreq; //DCY,  if > 0, checkpoint within iteration loop
+  string saveprojfilebase; //DCY, optional subdirectory and filename base for projection snapshots
 
   string esm_bc;
   double esm_w;
