@@ -57,6 +57,7 @@ noinst_HEADERS =                            \
 	RunTimer.h                          \
 	SaveDenFreq.h                       \
         SaveProjFreq.h                      \
+	Save2ndProjFreq.h 		    \
 	SaveFreq.h                          \
 	SaveWfFreq.h                        \
 	Smearing.h                          \
