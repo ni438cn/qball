@@ -130,6 +130,8 @@ struct Control
   int savewfstate;  // if >= 0, only save this state
   int saveprojfreq; //DCY,  if > 0, checkpoint within iteration loop
   string saveprojfilebase; //DCY, optional subdirectory and filename base for projection snapshots
+  int save2ndprojfreq; //DCY,  if > 0, checkpoint within iteration loop //CS same for seconds projection
+  string save2ndprojfilebase; //DCY, optional subdirectory and filename base for projection snapshots //CS
 
   string esm_bc;
   double esm_w;
