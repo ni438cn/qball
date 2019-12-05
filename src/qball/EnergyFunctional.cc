@@ -1005,6 +1005,9 @@ void EnergyFunctional::update_vhxc(void) {
     sigma_vdw[5] = stress[8];
     
   }
+
+  if ( el_enth_ )
+       el_enth_->update();
   
 }
 
