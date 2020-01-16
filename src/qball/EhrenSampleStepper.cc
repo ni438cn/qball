@@ -732,7 +732,66 @@ void EhrenSampleStepper::step(int niter)
       }
      }
    }
-	//DCY //CS
+//DCY
+
+// CS if save2ndprojfreq variable set, save cij matrices in text format
+    if (s_.ctrl.save2ndprojfreq > 0)
+    {
+     for ( int ispin = 0; ispin < (wf).nspin(); ispin++ )
+      {
+       for ( int ikp = 0; ikp < (wf).nkp(); ikp++ )
+        {
+         if (s_.ctrl.mditer%s_.ctrl.save2ndprojfreq == 0 || s_.ctrl.mditer == 1)
+          {
+          ComplexMatrix ortho(wf.sd(ispin,ikp)->context(),(wf.sd(ispin,ikp)->c()).n(),(wf.sd(ispin,ikp)->c()).n(),(wf.sd(ispin,ikp)->c()).nb(),(wf.sd(ispin,ikp)->c()).nb());
+
+          tmap["gemm"].start();
+          ortho.gemm('c','n',1.0,(*s_.proj2nd_wf).sd(ispin,ikp)->c(),(wf).sd(ispin,ikp)->c(),0.0);
+          tmap["gemm"].stop();
+
+          DoubleMatrix ortho_proxy(ortho);
+
+          std::vector<double> occ_result, occ_current, occ_result2;
+          occ_result.resize((wf.sd(ispin,ikp)->c()).n());
+          occ_result2.resize((wf.sd(ispin,ikp)->c()).n());
+          occ_current.resize((wf.sd(ispin,ikp)->c()).n());
+          occ_result.clear();
+          occ_current.clear();
+
+          double ehp_count=0.0;
+          double ehp_count2=0.0;
+
+          if ( onpe0 )
+          {
+             cout << "<2ndprojections> " << endl;
+             for (int i=0; i<(wf.sd(ispin,ikp)->c()).n(); i++) {
+               occ_current[i]=(wf.sd(ispin,ikp))->occ(i);
+             }
+          }
+
+          tmap["sum_col"].start();
+          ortho.sum_columns_square_occ(occ_result, occ_current);
+          tmap["sum_col"].stop();
+
+          tmap["sum_ortho"].start();
+
+          tmap["sum_ortho"].stop();
+
+          if ( onpe0 )
+          {
+            for (int i=0; i<(wf.sd(ispin,ikp)->c()).n(); i++)
+            {
+              cout << s_.ctrl.mditer << " " << i << " " << occ_result[i] << endl;
+              ehp_count += occ_result[i];
+            }
+            cout << "</2ndprojections>" << endl;
+            cout << "2ndprojsum = " << ehp_count << endl;
+          }
+       }
+      }
+     }
+   }
+//CS
 
     // AS: calculation and output of < psi(t) | psi(t) > , i.e., the orthonormalization
     // AS: code adopted from SlaterDet::gram(void)
@@ -1327,14 +1386,14 @@ void EhrenSampleStepper::step(int niter)
              }
           }
 
-	 // { CS
+	 // { 
 	    // PRINT THE CURRENT
-	    //currd_.plot_vtk(&s_, curfilename); CS
+	    //currd_.plot_vtk(&s_, curfilename); //CS
 	    //std::ostringstream oss; 
 	    //	    oss << std::setfill('0') << std::setw(6) << iter;
 	    // CUBE files are not very useful for the current
 	    //currd_.plot(&s_, "current" + oss.str());
-	 // } CS
+	 // } 
        }
     }
 

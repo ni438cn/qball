@@ -49,7 +49,7 @@ int LoadCmd::action(int argc, char **argv) {
 
   if ( !(argc>=2 && argc<=4 ) ) {
     if ( ui->oncoutpe() )
-      cout << "  <!-- use: load [-dump|-fast|-states|-proj|-text|-xml] [-serial] filename -->" 
+      cout << "  <!-- use: load [-dump|-fast|-states|-proj|-proj2nd|-text|-xml] [-serial] filename -->" 
            << endl;
     return 1;
   }
@@ -74,6 +74,8 @@ int LoadCmd::action(int argc, char **argv) {
       encoding = "states";
     else if ( arg=="-proj" )
       encoding = "proj";
+    else if ( arg=="-proj2nd" )
+      encoding = "proj2nd";
     else if ( arg=="-states-old" )
       encoding = "states-old";
     else if ( arg=="-xml" )
@@ -529,6 +531,15 @@ int LoadCmd::action(int argc, char **argv) {
   *(s->proj_wf) = s->wf;
   (*(s->proj_wf)).read_states(filestr);
   }
+
+  //////  2nd proj ///////
+  if (encoding == "proj2nd") {
+  new Wavefunction(s->wf);
+  s->proj2nd_wf = new Wavefunction(s->wf);
+  *(s->proj2nd_wf) = s->wf;
+  (*(s->proj2nd_wf)).read_states(filestr);
+  }
+
   /////  OLD STATES CHECKPOINTING  /////
   else if (encoding == "states-old" ) {
      s->wf.read_states_old(filestr);

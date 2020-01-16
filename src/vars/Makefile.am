@@ -19,7 +19,7 @@ noinst_HEADERS =                            \
 	Ecut.h                              \
 	Ecutprec.h                          \
 	Ecuts.h                             \
-	Efield.h			    \ 
+	Efield.h			    \
 	Emass.h                             \
 	EnthalpyPressure.h                  \
 	EnthalpyThreshold.h                 \
@@ -57,6 +57,7 @@ noinst_HEADERS =                            \
 	RunTimer.h                          \
 	SaveDenFreq.h                       \
         SaveProjFreq.h                      \
+	Save2ndProjFreq.h 		    \
 	SaveFreq.h                          \
 	SaveWfFreq.h                        \
 	Smearing.h                          \
