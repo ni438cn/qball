@@ -3574,7 +3574,7 @@ void Wavefunction::print_vmd(string filebase, const AtomSet& as) const {
    
 }
 /// edits
-void Wavefunction::print_moments(const int statenum, int a_moment, int b_moment, int c_moment) const{ 
+void Wavefunction::print_moments(const int statenum, const int a_moment, const int b_moment, const int c_moment) const{ 
   SlaterDet *sdp = sd(0,0);
   cout << "hi" << endl;
   const Basis& basis = sdp->basis();
@@ -3698,7 +3698,7 @@ void Wavefunction::print_moments(const int statenum, int a_moment, int b_moment,
 }
 
 
-void Wavefunction::print_moment(const int statenum, int a_moment, int b_moment, int c_moment) const{
+void Wavefunction::print_moment(const int statenum, const int a_moment, const int b_moment, const int c_moment) const{
   //calculate moments
   cout << "Does it work?" << endl;
   for ( int ispin = 0; ispin < nspin_; ispin++ ) {

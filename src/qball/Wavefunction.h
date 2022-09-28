@@ -200,7 +200,8 @@ class Wavefunction {
   void print(ostream& os, string encoding, string tag) const;
   void print_casino(ostream& os, int ispin, int kk) const;
   void print_vmd(string filebase, const AtomSet& as) const;
-  void print_moment(const int statenum, int a, int b, int c) const;
+  void print_moment(const int statenum, const int a_moment, const int b_moment, const int c_moment) const;
+  void print_moments(const int statenum, const int a_moment, const int b_moment, const int c_moment) const;
   void print_vmd(string filebase, const AtomSet& as, const int statenum) const;
   void printeig(void);
   void printocc(void);
