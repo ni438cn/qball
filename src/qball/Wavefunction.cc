@@ -3574,7 +3574,7 @@ void Wavefunction::print_vmd(string filebase, const AtomSet& as) const {
    
 }
 /// edits
-void Wavefunction::print_moment(const int statenum, int a_moment, int b_moment, int c_moment) {
+void Wavefunction::print_moment(const int statenum, int a_moment, int b_moment, int c_moment) const{
   //calculate moments
   cout << "Does it work?" << endl;
   for ( int ispin = 0; ispin < nspin_; ispin++ ) {
