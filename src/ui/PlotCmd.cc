@@ -232,7 +232,7 @@ int PlotCmd::action(int argc, char **argv)
       cout << " no states in sample" << endl;
       return 1;
     }
-
+// _______________________________
     SlaterDet *sdp = s->wf.sd(0,0);
     const Basis& basis = sdp->basis();
     np0 = basis.np(0);

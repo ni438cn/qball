@@ -3574,6 +3574,130 @@ void Wavefunction::print_vmd(string filebase, const AtomSet& as) const {
    
 }
 /// edits
+void Wavefunction::print_moments(const int statenum, int a_moment, int b_moment, int c_moment) const{ 
+  SlaterDet *sdp = sd(0,0);
+  cout << "hi" << endl;
+  const Basis& basis = sdp->basis();
+  np0 = basis.np(0);
+  np1 = basis.np(1);
+  np2 = basis.np(2);
+  FourierTransform ft(basis,np0,np1,np2);
+  const ComplexMatrix& c = sdp->c();
+
+  vector<complex<double> > wftmp(ft.np012loc());
+  vector<double> wftmpr(ft.np012());
+  tmpr.resize(ft.np012());
+  int n = statenum;
+
+  // compute real-space wavefunction
+
+  // transform wf on ctxt.mycol() hosting state n
+  if ( c.pc(n) == c.context().mycol() )
+  {
+    //os << " state " << n << " is stored on column "
+    //     << ctxt_.mycol() << " local index: " << c_.y(n) << endl;
+    int nloc = c.y(n); // local index
+    ft.backward(c.cvalptr(c.mloc()*nloc),&wftmp[0]);
+
+    double *a = (double*) &wftmp[0];
+    if ( basis.real() )
+    {
+      // real function: plot wf
+      for ( int i = 0; i < ft.np012loc(); i++ )
+        wftmpr[i] = a[2*i];
+    }
+    else
+    {
+      // complex function: plot modulus
+      for ( int i = 0; i < ft.np012loc(); i++ ) {
+        wftmpr[i] = sqrt(a[2*i]*a[2*i] + a[2*i+1]*a[2*i+1]);
+        cout.precision(15);
+        cout << "AS: WF " << a[2*i] << "    " << a[2*i+1] << endl;
+      }
+    }
+  }
+
+  // send blocks of wftmpr to pe0
+  for ( int i = 0; i < c.context().nprow(); i++ )
+  {
+    bool iamsending = c.pc(n) == c.context().mycol() &&
+                      i == c.context().myrow();
+
+    // send size of wftmpr block
+    int size=-1;
+    if ( c.context().oncoutpe() )
+    {
+      if ( iamsending )
+      {
+        // sending to self, size not needed
+      }
+      else
+        c.context().irecv(1,1,&size,1,i,c.pc(n));
+    }
+    else
+    {
+      if ( iamsending )
+      {
+        size = ft.np012loc();
+        c.context().isend(1,1,&size,1,0,0);
+      }
+    }
+
+    // send wftmpr block
+    if ( c.context().oncoutpe() )
+    {
+      if ( iamsending )
+      {
+        // do nothing, data is already in place
+      }
+      else
+      {
+        int istart = ft.np0() * ft.np1() * ft.np2_first(i);
+        c.context().drecv(size,1,&wftmpr[istart],1,i,c.pc(n));
+      }
+    }
+    else
+    {
+      if ( iamsending )
+      {
+        c.context().dsend(size,1,&wftmpr[0],1,0,0);
+      }
+    }
+  }
+
+    // process the data on task 0
+  if ( c.context().oncoutpe() )
+  {
+    // wftmpr is now complete on task 0
+   
+      for ( int i = 0; i < ft.np012(); i++ )
+      {
+        tmpr[i] = wftmpr[i] * wftmpr[i];
+      }
+  }
+
+  
+
+
+// tmpr now contains the function to plot on task 0
+  for ( int i = 0; i < np0; i++ )
+  {
+    const int ip = (i + np0/2 ) % np0;
+    for ( int j = 0; j < np1; j++ )
+    {
+      const int jp = (j + np1/2 ) % np1;
+      for ( int k = 0; k < np2; k++ )
+      {
+        const int kp = (k + np2/2 ) % np2;
+        cout  << tmpr[ip+np0*(jp+np1*kp)] << endl;
+        
+      }
+    }
+
+  }
+}
+
+
 void Wavefunction::print_moment(const int statenum, int a_moment, int b_moment, int c_moment) const{
   //calculate moments
   cout << "Does it work?" << endl;
@@ -3628,10 +3752,9 @@ void Wavefunction::print_moment(const int statenum, int a_moment, int b_moment, 
                      vector<double> wftmpr(2*ft.np012loc());
                      cout << "debug 5.1 " << endl;
                      //cout << c << endl;
-                     SlaterDet *sdp = sd(0,0);
-                     const ComplexMatrix& c = sdp->c();
+                     ComplexMatrix& c = sd_[ispin][kp]->c();
                      cout << "debug 5.11 " << endl;
-                     cout << c << endl;
+                     //cout << c << endl;
                      cout << "debug 5.12 " << endl;
                      cout << mloc*n << endl;
                      cout << "debug 5.13 " << endl;
