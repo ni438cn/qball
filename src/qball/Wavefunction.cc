@@ -3626,17 +3626,19 @@ void Wavefunction::print_moment(const int statenum, int a, int b, int c) {
                      int mloc = sd_[ispin][kp]->c().mloc();
                      vector<complex<double> > wftmp(ft.np012loc());
                      vector<double> wftmpr(2*ft.np012loc());
-                  
+                     cout << "debug 5.1 " << endl;
                      ComplexMatrix& c = sd_[ispin][kp]->c();
                      ft.backward(c.cvalptr(mloc*n),&wftmp[0]);
-                  
+                     cout << "debug 5.2 " << endl;
                      // copy |wf|^2 to double array for communication
                      double *a = (double*) &wftmp[0];
-                     for ( int i = 0; i < ft.np012loc(); i++ )
+                     for ( int i = 0; i < ft.np012loc(); i++ ){
                         wftmpr[i] = a[2*i]*a[2*i] + a[2*i+1]*a[2*i+1];
-                    
+                     }
+                     cout << "debug 5.3 " << endl;
                      // send data to first proc in context column
                      for ( int i = 0; i < tctxt->nprow(); i++ ) {
+                       cout << "debug 5.4: " << i << endl;
                         if ( i == prow ) {
                            int size = ft.np012loc();
                            tctxt->isend(1,1,&size,1,0,pcol);
