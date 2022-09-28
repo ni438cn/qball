@@ -3578,15 +3578,16 @@ void Wavefunction::print_moments(const int statenum, const int a_moment, const i
   SlaterDet *sdp = sd(0,0);
   cout << "hi" << endl;
   const Basis& basis = sdp->basis();
-  np0 = basis.np(0);
-  np1 = basis.np(1);
-  np2 = basis.np(2);
+  const int np0 = basis.np(0);
+  const int np1 = basis.np(1);
+  const int np2 = basis.np(2);
   FourierTransform ft(basis,np0,np1,np2);
   const ComplexMatrix& c = sdp->c();
 
   vector<complex<double> > wftmp(ft.np012loc());
   vector<double> wftmpr(ft.np012());
-  tmpr.resize(ft.np012());
+  //tmpr.resize(ft.np012());
+  vector<double> tmpr(ft.np012());
   int n = statenum;
 
   // compute real-space wavefunction
