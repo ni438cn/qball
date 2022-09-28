@@ -3627,7 +3627,9 @@ void Wavefunction::print_moment(const int statenum, int a_moment, int b_moment, 
                      vector<complex<double> > wftmp(ft.np012loc());
                      vector<double> wftmpr(2*ft.np012loc());
                      cout << "debug 5.1 " << endl;
-                     ComplexMatrix& c = sd_[ispin][kp]->c();
+                     //cout << c << endl;
+                     SlaterDet *sdp = sd(0,0);
+                     const ComplexMatrix& c = sdp->c();
                      cout << "debug 5.11 " << endl;
                      cout << c << endl;
                      cout << "debug 5.12 " << endl;
