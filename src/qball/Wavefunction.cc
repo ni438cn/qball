@@ -3629,6 +3629,9 @@ void Wavefunction::print_moment(const int statenum, int a, int b, int c) {
                      cout << "debug 5.1 " << endl;
                      ComplexMatrix& c = sd_[ispin][kp]->c();
                      cout << "debug 5.11 " << endl;
+                     cout << c << endl;
+                     cout << mloc*n << endl;
+                     cout << &wftmp[0] << endl;
                      ft.backward(c.cvalptr(mloc*n),&wftmp[0]);
                      cout << "debug 5.2 " << endl;
                      // copy |wf|^2 to double array for communication
