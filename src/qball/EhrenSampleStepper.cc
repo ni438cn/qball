@@ -1229,9 +1229,12 @@ void EhrenSampleStepper::step(int niter)
           if ( oncoutpe )
           {
              cout << " <mlwf_set size=\"" << sd.nst() << "\">" << endl;
+             // add higher order moments below
              for ( int i = 0; i < sd.nst(); i++ )
              {
                 D3vector ctr = tdmlwft->center(i);
+                cout << "My moments : " << endl;
+                wf.print_moment(i, 0, 0, 0);
                 double sp = tdmlwft->spread(i);
                 cout.setf(ios::fixed, ios::floatfield);
                 cout.setf(ios::right, ios::adjustfield);
@@ -1277,6 +1280,90 @@ void EhrenSampleStepper::step(int niter)
             << endl;
        cout << "</iteration>" << endl;
     }
+    // add moments here
+    // ********************
+    /*
+   string filebase = s_.ctrl.savedenfilebase;
+   ostringstream oss;
+   oss.width(7);  oss.fill('0');  oss << s_.ctrl.mditer;
+   string denfilename = filebase + "." + oss.str() + ".cube";
+   string curfilename = filebase + "-current." + oss.str();
+   string format = "binary";
+   */
+   /*
+   const Context* wfctxt = s_.wf.spincontext(0);
+   FourierTransform* ft_ = cd_.vft();
+   if (wfctxt->mycol() == 0) {
+      vector<double> rhortmp(ft_->np012loc());
+      for (int j = 0; j < ft_->np012loc(); j++)
+         rhortmp[j] = cd_.rhor[0][j];
+      
+      for ( int i = 0; i < wfctxt->nprow(); i++ ) {
+         if ( i == wfctxt->myrow() ) {
+            int size = ft_->np012loc();
+            wfctxt->isend(1,1,&size,1,0,0);
+            wfctxt->dsend(size,1,&rhortmp[0],1,0,0);
+         }
+      }
+      if ( wfctxt->oncoutpe() ) {
+         
+         vector<double> tmprecv(ft_->np012());
+         int recvoffset = 0;
+
+         D3vector a0 = s_.wf.cell().a(0);
+         D3vector a1 = s_.wf.cell().a(1);
+         D3vector a2 = s_.wf.cell().a(2);
+         const int np0 = ft_->np0();
+         const int np1 = ft_->np1();
+         const int np2 = ft_->np2();
+         D3vector dft0 = a0/(double)np0;
+         D3vector dft1 = a1/(double)np1;
+         D3vector dft2 = a2/(double)np2;
+         
+         for ( int i = 0; i < wfctxt->nprow(); i++ ) {
+            int size = 0;
+            wfctxt->irecv(1,1,&size,1,i,0);
+            wfctxt->drecv(size,1,&tmprecv[recvoffset],1,i,0);
+            recvoffset += size;
+
+            if (i==0) {
+               // write out VMD CUBE format header
+               //os << "Qbox wavefunction in VMD CUBE format" << endl;
+               cout << "  electronic density moments " << endl;
+               // CUBE
+               // get atom positions
+             
+            }
+         }
+
+         // write density data to file
+         int cnt = 0;
+         for (int ii = 0; ii < np0; ii++) {
+const int ip = (ii + np0/2) % np0;
+            
+            for (int jj = 0; jj < np1; jj++) {
+   const int jp = (jj + np1/2) % np1;
+               for (int kk = 0; kk < np2; kk++) {
+   const int kp = (kk + np2/2) % np2;
+                  int index = ip + jp*np0 + kp*np0*np1;
+                  oss << tmprecv[index] << " ";
+                  cnt++;
+                  if (cnt >= 6) {
+                     cnt = 0;
+                     oss << endl;
+                  }
+               }
+            }
+            string tos = oss.str();
+            os.write(tos.c_str(),tos.length());
+         }
+         os.close();
+      }
+   }
+
+   */
+
+   // ********************
 
     s_.ctrl.mditer++;
 
@@ -1335,7 +1422,7 @@ void EhrenSampleStepper::step(int niter)
                       // write out VMD CUBE format header
                       os << "Qbox wavefunction in VMD CUBE format" << endl;
                       os << "  electron density" << endl;
-
+                      // CUBE
                       // get atom positions
                       AtomSet& as = s_.atoms;
                       vector<vector<double> > rion;

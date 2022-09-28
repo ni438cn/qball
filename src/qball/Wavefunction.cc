@@ -3573,6 +3573,130 @@ void Wavefunction::print_vmd(string filebase, const AtomSet& as) const {
       print_vmd(filebase, as, n);
    
 }
+/// edits
+void Wavefunction::print_moment(const int statenum, int a, int b, int c) {
+  //calculate moments
+  for ( int ispin = 0; ispin < nspin_; ispin++ ) {
+    if (spinactive(ispin)) {
+      for ( int ikp = 0; ikp < sdcontext_[ispin].size(); ikp++ ) {
+        if (sdcontext_[ispin][ikp] != 0 ) {
+          if (sdcontext_[ispin][ikp]->active() ) {
+
+            Context* tctxt = sdcontext_[ispin][ikp];
+            int prow = tctxt->myrow();
+            int pcol = tctxt->mycol();
+            for ( int kloc=0; kloc<nkptloc_; kloc++) {
+              int kp = kptloc_[kloc];         // global index of local kpoint
+              if ( sd_[ispin][kp] != 0 ) {
+                int nstloc = sd_[ispin][kp]->nstloc();
+                int nb = sd_[ispin][kp]->c().nb();
+
+                const Basis& basis = sd_[ispin][kp]->basis();
+                FourierTransform ft(basis,basis.np(0),basis.np(1),basis.np(2));
+                
+                D3vector a0 = cell_.a(0);
+                D3vector a1 = cell_.a(1);
+                D3vector a2 = cell_.a(2);
+                const int np0 = ft.np0();
+                const int np1 = ft.np1();
+                const int np2 = ft.np2();
+                D3vector dft0 = a0/(double)np0;
+                D3vector dft1 = a1/(double)np1;
+                D3vector dft2 = a2/(double)np2;
+                D3vector ori = -0.5 * (a0+a1+a2);
+
+                for ( int n = 0; n < nstloc; n++ ) {
+                  // global n index
+                  const int nn = pcol*nb + n;
+                  if (nn == statenum || statenum < 0)  // statenum < 0 means print all states
+                  {
+                  
+                     //ofstream os;
+                     //os.setf(ios::scientific,ios::floatfield);
+                     //os << setprecision(8);
+                     if (tctxt->myrow() == 0) {
+                        // write out wavefunction for this state and k-point
+                        //ostringstream oss1,oss2,oss3;
+                 
+                        // get atom positions
+                        
+                        //D3vector origin(0.0,0.0,0.0);
+                        //os << natoms_total << " " << origin << endl;
+                        
+                        // print FFT grid info
+                        //os << np0 << " " << dft0 << endl;
+                        //os << np1 << " " << dft1 << endl;
+                        //os << np2 << " " << dft2 << endl;
+
+                    
+                     }
+                
+                     // print isosurface:  values in six columns with z fast
+                     int mloc = sd_[ispin][kp]->c().mloc();
+                     vector<complex<double> > wftmp(ft.np012loc());
+                     vector<double> wftmpr(2*ft.np012loc());
+                  
+                     ComplexMatrix& c = sd_[ispin][kp]->c();
+                     ft.backward(c.cvalptr(mloc*n),&wftmp[0]);
+                  
+                     // copy |wf|^2 to double array for communication
+                     double *a = (double*) &wftmp[0];
+                     for ( int i = 0; i < ft.np012loc(); i++ )
+                        wftmpr[i] = a[2*i]*a[2*i] + a[2*i+1]*a[2*i+1];
+                
+                     // send data to first proc in context column
+                     for ( int i = 0; i < tctxt->nprow(); i++ ) {
+                        if ( i == prow ) {
+                           int size = ft.np012loc();
+                           tctxt->isend(1,1,&size,1,0,pcol);
+                           tctxt->dsend(size,1,&wftmpr[0],1,0,pcol);
+                        }
+                     }
+                     // receive data, store for reordering on output
+                     if (tctxt->myrow() == 0) {
+                        vector<double> wftmprecv(ft.np012());
+                        int recvoffset = 0;
+                        for ( int i = 0; i < tctxt->nprow(); i++ ) {
+                           int size = 0;
+                           tctxt->irecv(1,1,&size,1,i,pcol);
+                           tctxt->drecv(size,1,&wftmprecv[recvoffset],1,i,pcol);
+                           recvoffset += size;
+                        }
+                        
+                        // write wf data to file
+                        D3vector moment = 0*ori;
+
+                        int cnt = 0;
+                        for (int ii = 0; ii < np0; ii++) {
+                         
+                           for (int jj = 0; jj < np1; jj++) {
+                              for (int kk = 0; kk < np2; kk++) {
+                                 int index = ii + jj*np0 + kk*np0*np1;
+                                 double den = wftmprecv[index];
+                                 D3vector pos = ori + jj*dft0 + kk*dft1+ii*dft2;
+                                 moment += den *pos;
+                                // oss << wftmprecv[index] << " ";
+                                 
+                              }
+                           }
+                           //string tos = oss.str();
+                           //os << tos.c_str();
+                           //os.write(tos.c_str(),tos.length());
+                        }
+                        cout << "MLWF " << statenum << " center: " << moment << endl;
+                        //os.close();
+
+                     }
+                  }
+                }                  
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 ////////////////////////////////////////////////////////////////////////////////
 void Wavefunction::print_vmd(string filebase, const AtomSet& as, const int statenum) const {
   for ( int ispin = 0; ispin < nspin_; ispin++ ) {
