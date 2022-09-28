@@ -3620,7 +3620,7 @@ void Wavefunction::print_moment(const int statenum, int a, int b, int c) {
                      //ofstream os;
                      //os.setf(ios::scientific,ios::floatfield);
                      //os << setprecision(8);
-                     cout << "debug 5 " << nn < endl;
+                     cout << "debug 5 " << nn << endl;
                 
                      // print isosurface:  values in six columns with z fast
                      int mloc = sd_[ispin][kp]->c().mloc();
