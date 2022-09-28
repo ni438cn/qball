@@ -3576,9 +3576,12 @@ void Wavefunction::print_vmd(string filebase, const AtomSet& as) const {
 /// edits
 void Wavefunction::print_moment(const int statenum, int a, int b, int c) {
   //calculate moments
+  cout << "Does it work?" << endl;
   for ( int ispin = 0; ispin < nspin_; ispin++ ) {
+    cout << "debug1 " << ispin << endl;
     if (spinactive(ispin)) {
       for ( int ikp = 0; ikp < sdcontext_[ispin].size(); ikp++ ) {
+        cout << "debug 2 " << ikp << endl;
         if (sdcontext_[ispin][ikp] != 0 ) {
           if (sdcontext_[ispin][ikp]->active() ) {
 
@@ -3586,6 +3589,7 @@ void Wavefunction::print_moment(const int statenum, int a, int b, int c) {
             int prow = tctxt->myrow();
             int pcol = tctxt->mycol();
             for ( int kloc=0; kloc<nkptloc_; kloc++) {
+              cout << "debug 3 " << kloc << endl;
               int kp = kptloc_[kloc];         // global index of local kpoint
               if ( sd_[ispin][kp] != 0 ) {
                 int nstloc = sd_[ispin][kp]->nstloc();
@@ -3604,9 +3608,11 @@ void Wavefunction::print_moment(const int statenum, int a, int b, int c) {
                 D3vector dft1 = a1/(double)np1;
                 D3vector dft2 = a2/(double)np2;
                 D3vector ori = -0.5 * (a0+a1+a2);
+                cout << "ori " << ori << endl;
 
                 for ( int n = 0; n < nstloc; n++ ) {
                   // global n index
+                  cout << "debug 4 " << n << endl;
                   const int nn = pcol*nb + n;
                   if (nn == statenum || statenum < 0)  // statenum < 0 means print all states
                   {
@@ -3614,22 +3620,7 @@ void Wavefunction::print_moment(const int statenum, int a, int b, int c) {
                      //ofstream os;
                      //os.setf(ios::scientific,ios::floatfield);
                      //os << setprecision(8);
-                     if (tctxt->myrow() == 0) {
-                        // write out wavefunction for this state and k-point
-                        //ostringstream oss1,oss2,oss3;
-                 
-                        // get atom positions
-                        
-                        //D3vector origin(0.0,0.0,0.0);
-                        //os << natoms_total << " " << origin << endl;
-                        
-                        // print FFT grid info
-                        //os << np0 << " " << dft0 << endl;
-                        //os << np1 << " " << dft1 << endl;
-                        //os << np2 << " " << dft2 << endl;
-
-                    
-                     }
+                     cout << "debug 5 " << nn < endl;
                 
                      // print isosurface:  values in six columns with z fast
                      int mloc = sd_[ispin][kp]->c().mloc();
@@ -3643,7 +3634,7 @@ void Wavefunction::print_moment(const int statenum, int a, int b, int c) {
                      double *a = (double*) &wftmp[0];
                      for ( int i = 0; i < ft.np012loc(); i++ )
                         wftmpr[i] = a[2*i]*a[2*i] + a[2*i+1]*a[2*i+1];
-                
+                    
                      // send data to first proc in context column
                      for ( int i = 0; i < tctxt->nprow(); i++ ) {
                         if ( i == prow ) {
@@ -3652,6 +3643,7 @@ void Wavefunction::print_moment(const int statenum, int a, int b, int c) {
                            tctxt->dsend(size,1,&wftmpr[0],1,0,pcol);
                         }
                      }
+                     cout << "debug 6 " << endl;
                      // receive data, store for reordering on output
                      if (tctxt->myrow() == 0) {
                         vector<double> wftmprecv(ft.np012());
@@ -3665,10 +3657,11 @@ void Wavefunction::print_moment(const int statenum, int a, int b, int c) {
                         
                         // write wf data to file
                         D3vector moment = 0*ori;
-
+                        cout << "debug 7 " << endl;
                         int cnt = 0;
                         for (int ii = 0; ii < np0; ii++) {
-                         
+                          cout << "iith : " << ii <<endl;
+
                            for (int jj = 0; jj < np1; jj++) {
                               for (int kk = 0; kk < np2; kk++) {
                                  int index = ii + jj*np0 + kk*np0*np1;
