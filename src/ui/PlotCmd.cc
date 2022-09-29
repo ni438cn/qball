@@ -468,7 +468,7 @@ int PlotCmd::action(int argc, char **argv)
           {
             const int kp = (k + np2/2 ) % np2;
             double den = tmpr[ip+np0*(jp+np1*kp)];
-            D3vector pos = ori + jj*v0 + kk*v1+ii*v2;
+            D3vector pos = ori + i*v0 + j*v1+k*v2;
             moment += den *pos*dr;
             
             //os << setw(13) << ;
