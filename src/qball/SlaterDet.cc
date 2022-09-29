@@ -954,6 +954,7 @@ void SlaterDet::compute_density(FourierTransform ft,
   cout << "abc" << endl;
   if ( 1==0 && basis_->real() ) {
      // transform two states at a time
+     cout << "true assertion" << endl;
      for ( int lj=0; lj < c_.nblocks(); lj++ )
      {
         for ( int jj=0; jj < c_.nbs(lj); jj+=2)
@@ -984,12 +985,14 @@ void SlaterDet::compute_density(FourierTransform ft,
         }
      }
      if ( nstloc() % 2 != 0 ) {
+       cout << "over here" << endl;
         const int n = nstloc()-1;
         // global n index
         const int nn = ctxt_.mycol() * c_.nb() + n;
         const double fac1 = prefac * occ_[nn];
         
         if ( fac1 > 0.0 ) {
+           cout << "before ft"<< endl;
            ft.backward(c_.cvalptr(n*c_.mloc()),&tmp[0]);
            cout << "abcft2 "  <<  nn<< endl;
            const double* psi = (double*) &tmp[0];
@@ -1003,6 +1006,7 @@ void SlaterDet::compute_density(FourierTransform ft,
      }
   }
   else {
+    cout << "on route" << endl;
      // only one transform at a time
      for ( int lj=0; lj < c_.nblocks(); lj++ )
      {
@@ -1013,6 +1017,7 @@ void SlaterDet::compute_density(FourierTransform ft,
            const double fac = prefac * occ_[nn];
            const int norig = lj*c_.nb()+jj;
            if ( fac > 0.0 ) {
+              cout << " whats the problems??" << endl;
               ft.backward(c_.cvalptr(norig*c_.mloc()),&tmp[0]);
               cout << "abcft3 "  <<  nn<< endl;
 
