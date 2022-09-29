@@ -491,6 +491,7 @@ int PlotCmd::action(int argc, char **argv)
             double zp = pos[2];
             for (int nm = 1; nm <= nmoments; nm++) {
               int sizn = (int) (nm+2) * (nm+1) / 2;
+              cout << "nm = " << nm << "  sizn = " << sizn << endl;
               vector<double> nmoment(sizn);
               momentarr[nm-1] = nmoment;
               int cm = 0;
@@ -502,6 +503,7 @@ int PlotCmd::action(int argc, char **argv)
                 }
 
               }
+              cout << momentarr << endl;
             }
             
             charge_total += den * dr;
