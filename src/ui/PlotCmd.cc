@@ -362,8 +362,9 @@ int PlotCmd::action(int argc, char **argv)
 
   // tmpr now contains the function to plot on task 0
 
-  if ( ctxt.oncoutpe() && ! moments)
+  if ( ctxt.oncoutpe() && !moments) {
     os.open(filename.c_str());
+  }
 
   if ( plot_atoms )
   {
@@ -457,9 +458,12 @@ int PlotCmd::action(int argc, char **argv)
     D3vector v1 = a1/np1;
     D3vector v2 = a2/np2;
     D3vector ori = -0.5 * (a0+a1+a2);
+    cout << "orgigin " << ori << endl;
+    cout << "cube vector " << v0 << endl;
     D3vector moment = 0*ori;
     D3vector cub = v0+v1+v2;
     double dr = cub[0] * cub[1] * cub[2];
+    cout << "cube area: " << dr<< endl; 
 
     for ( int i = 0; i < np0; i++ )
       {
