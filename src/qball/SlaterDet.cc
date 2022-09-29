@@ -1017,7 +1017,9 @@ void SlaterDet::compute_density(FourierTransform ft,
            const double fac = prefac * occ_[nn];
            const int norig = lj*c_.nb()+jj;
            if ( fac > 0.0 ) {
-              cout << " whats the problems??" << endl;
+              cout << " whats the problems??  " << nn <<endl;
+              cout << norig*c_.mloc() << endl;
+              cout << c_.cvalptr(norig*c_.mloc()) << endl;
               ft.backward(c_.cvalptr(norig*c_.mloc()),&tmp[0]);
               cout << "abcft3 "  <<  nn<< endl;
 
