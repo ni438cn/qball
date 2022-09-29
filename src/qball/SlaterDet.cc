@@ -938,6 +938,7 @@ void SlaterDet::compute_density(FourierTransform ft,
   // compute density of the states residing on my column of ctxt_
   assert(occ_.size() == c_.n());
   vector<complex<double> > tmp(ft.np012loc());
+  cout << "called" << endl;
   
   assert(basis_->cell().volume() > 0.0);
   const double prefac = weight / basis_->cell().volume();  // weight = kpoint weight/total weightsum

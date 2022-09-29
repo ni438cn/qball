@@ -1247,7 +1247,9 @@ void EhrenSampleStepper::step(int niter)
                 FourierTransform ft(basis,np0,np1,np2);
                 cout << "debugger " << endl;
                 vector<double> tmpr(ft.np012());
-                sd.compute_density(ft, 1.0, &(tmpr[0]), 0);
+                cout << "did" << endl;
+                sd.compute_density(ft, 1.0, tmpr, 0);
+                cout << "dided" << endl;
                 cout << tmpr[0] << endl;
 
                 wf.print_moments(i, 0, 0, 0);
