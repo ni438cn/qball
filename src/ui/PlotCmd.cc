@@ -464,7 +464,7 @@ int PlotCmd::action(int argc, char **argv)
     D3vector cub = v0+v1+v2;
     double dr = cub[0] * cub[1] * cub[2];
     cout << "cube area: " << dr<< endl; 
-
+    double charge_total = 0;
     for ( int i = 0; i < np0; i++ )
       {
         const int ip = (i + np0/2 ) % np0;
@@ -474,8 +474,10 @@ int PlotCmd::action(int argc, char **argv)
           for ( int k = 0; k < np2; k++ )
           {
             const int kp = (k + np2/2 ) % np2;
-            double den = tmpr[ip+np0*(jp+np1*kp)];
+            double den = (double) tmpr[ip+np0*(jp+np1*kp)];
+            den = pow(den, 2);
             D3vector pos = ori + i*v0 + j*v1+k*v2;
+            charge_total += den * dr;
             moment += den *pos*dr;
             
             //os << setw(13) << ;
@@ -485,6 +487,8 @@ int PlotCmd::action(int argc, char **argv)
         }
       }
     cout << "MLWF: " << moment << endl;  
+    cout << "charge: " << charge_total << endl;
+    cout << "Adj: " << moment / charge_total << endl;
 
   }
 
