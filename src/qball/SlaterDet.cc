@@ -951,6 +951,7 @@ void SlaterDet::compute_density(FourierTransform ft,
   
   //ewd DEBUG:  transform one state at a time for both cases
   //if ( basis_->real() ) {
+  cout << "abc" << endl;
   if ( 1==0 && basis_->real() ) {
      // transform two states at a time
      for ( int lj=0; lj < c_.nblocks(); lj++ )
@@ -962,11 +963,13 @@ void SlaterDet::compute_density(FourierTransform ft,
            const int norig = lj*c_.nb()+jj;
            const double fac1 = prefac * occ_[nn];
            const double fac2 = prefac * occ_[nn+1];
+           cout << "abc "  <<  nn<< endl;
       
            if ( fac1 + fac2 > 0.0 ) {
               //tm_ft.start();
               ft.backward(c_.cvalptr(norig*c_.mloc()),c_.cvalptr((norig+1)*c_.mloc()),&tmp[0]);
               //tm_ft.stop();
+              cout << "abcft "  <<  nn<< endl;
               const double* psi = (double*) &tmp[0];
               int ii = 0;
               //tm_rhosum.start();
@@ -988,6 +991,7 @@ void SlaterDet::compute_density(FourierTransform ft,
         
         if ( fac1 > 0.0 ) {
            ft.backward(c_.cvalptr(n*c_.mloc()),&tmp[0]);
+           cout << "abcft2 "  <<  nn<< endl;
            const double* psi = (double*) &tmp[0];
            int ii = 0;
            for ( int i = 0; i < np012loc; i++ ) {
@@ -1010,6 +1014,7 @@ void SlaterDet::compute_density(FourierTransform ft,
            const int norig = lj*c_.nb()+jj;
            if ( fac > 0.0 ) {
               ft.backward(c_.cvalptr(norig*c_.mloc()),&tmp[0]);
+              cout << "abcft3 "  <<  nn<< endl;
 
               //ewd DEBUG:  try threading this loop:
 #pragma omp parallel for
