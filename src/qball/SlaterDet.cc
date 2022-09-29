@@ -932,7 +932,7 @@ void SlaterDet::compute_density(FourierTransform& ft,
   //      << tm_rhosum.real() << endl;
 }
 void SlaterDet::compute_density(FourierTransform ft, 
-  double weight, double* rho) const {
+  double weight, double* rho, int qqq) const {
 
   //Timer tm_ft, tm_rhosum;
   // compute density of the states residing on my column of ctxt_

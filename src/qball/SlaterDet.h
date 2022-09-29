@@ -111,7 +111,7 @@ class SlaterDet {
   void reshape(const Context& newctxt, const Context& new_col_ctxt, const Context& newctxtsq, bool setnewctxt);
   void copyTo(SlaterDet* newsd);
   void compute_density(FourierTransform& ft, double weight, double* rho) const;
-  void compute_density(FourierTransform ft, double weight, double* rho) const;
+  void compute_density(FourierTransform ft, double weight, double* rho, int qqq) const;
 
   void compute_density(FourierTransform& ft, double weight, std::complex<double> * rho, const SlaterDet & sd2_) const;
 
