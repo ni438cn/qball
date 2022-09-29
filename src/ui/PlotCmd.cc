@@ -96,15 +96,21 @@ int PlotCmd::action(int argc, char **argv)
   else if ( argc == 3 )
   {
     // plot -density filename  : plot atoms and density in cube format
-    if ( strcmp(argv[1],"-density") )
-    {
-      if ( ui->oncoutpe() )
-        cout << usage << endl;
-      return 1;
+    
+    if (0==strcmp(argv[1],"-moments")) {
+      moments = true;
+      nmin = atoi(argv[2]) - 1;
+      nmax = nmin;
+      nwf = 1;
+      cout << "found -moments" << endl;
     }
-    filename = argv[2];
-    plot_atoms = true;
-    plot_density = true;
+    if ( 0==strcmp(argv[1],"-density") )
+    {
+      filename = argv[2];
+      plot_atoms = true;
+      plot_density = true;
+    }
+    
   }
   else if ( argc == 4 )
   {
@@ -449,7 +455,7 @@ int PlotCmd::action(int argc, char **argv)
       }
     }
   } // if plot_density || plot_wf
-  if (moments) {
+  if (moments && ui->oncoutpe() ) {
     cout << "called" << endl;
     D3vector a0 = s->atoms.cell().a(0);
     D3vector a1 = s->atoms.cell().a(1);
@@ -486,7 +492,7 @@ int PlotCmd::action(int argc, char **argv)
           
         }
       }
-    cout << "MLWF: " << moment << endl;  
+    //cout << "MLWF: " << moment << endl;  
     cout << "charge: " << charge_total << endl;
     cout << "Adj: " << moment / charge_total << endl;
 
