@@ -531,11 +531,15 @@ void FourierTransform::backward(const complex<double>* c, complex<double>* f)
 #if TIMING
   tm_b_map.start();
 #endif
+  cout << "step 1" << endl;
   vector_to_zvec(c);
+  cout << "step 2" << endl;
 #if TIMING
   tm_b_map.stop();
 #endif
+  cout << "step 3" << endl;
   bwd(f);
+  cout << "step 4" << endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1624,6 +1628,7 @@ void FourierTransform::init_lib(void)
 void FourierTransform::vector_to_zvec(const complex<double> *c)
 {
   const int ng = basis_.localsize();
+  cout << "used" << endl;
   const int zvec_size = zvec_.size();
   double* const pz = (double*) &zvec_[0];
   #pragma omp parallel for
