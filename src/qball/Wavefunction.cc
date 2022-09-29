@@ -3588,6 +3588,7 @@ void Wavefunction::print_moments(const int statenum, const int a_moment, const i
   vector<double> wftmpr(ft.np012());
   //tmpr.resize(ft.np012());
   vector<double> tmpr(ft.np012());
+  
   int n = statenum;
 
   // compute real-space wavefunction
