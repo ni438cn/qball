@@ -54,6 +54,7 @@ using namespace std;
 int PlotCmd::action(int argc, char **argv)
 {
   string usage("  Use: plot [-density|-wf <nmin> [<nmax>]] filename");
+  cout << "actions" << endl;
 
   // parse arguments
   // plot filename               : plot atoms in xyz format
@@ -78,7 +79,8 @@ int PlotCmd::action(int argc, char **argv)
   if ( argc == 2 )
   {
     // plot filename : plot atoms in xyz format
-    if (strcmp(argv[1],"-moments")) {
+
+    if (true) {
       moments = true;
       nmin = 0;
       nmax = 0;

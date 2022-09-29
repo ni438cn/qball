@@ -531,15 +531,15 @@ void FourierTransform::backward(const complex<double>* c, complex<double>* f)
 #if TIMING
   tm_b_map.start();
 #endif
-  cout << "step 1" << endl;
+
   vector_to_zvec(c);
-  cout << "step 2" << endl;
+
 #if TIMING
   tm_b_map.stop();
 #endif
-  cout << "step 3" << endl;
+
   bwd(f);
-  cout << "step 4" << endl;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -587,7 +587,7 @@ void FourierTransform::forward(complex<double>* f,
 ////////////////////////////////////////////////////////////////////////////////
 void FourierTransform::bwd(complex<double>* val)
 {
-  cout << "herey1" << endl;
+
   // transform zvec along z, transpose and transform along x,y, store
   // result in val
   // The columns of zvec[nvec_ * np2_] contain the full vectors
@@ -717,7 +717,7 @@ void FourierTransform::bwd(complex<double>* val)
   // scatter index array iunpack
   {
     const int len = np012loc() * 2;
-    cout << "herey" << endl;
+
     double* const pv = (double*) &val[0];
     #pragma omp parallel for
     for ( int i = 0; i < len; i++ )
@@ -1630,7 +1630,7 @@ void FourierTransform::init_lib(void)
 void FourierTransform::vector_to_zvec(const complex<double> *c)
 {
   const int ng = basis_.localsize();
-  cout << "used" << endl;
+
   const int zvec_size = zvec_.size();
   double* const pz = (double*) &zvec_[0];
   #pragma omp parallel for
