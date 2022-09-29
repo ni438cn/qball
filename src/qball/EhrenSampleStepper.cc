@@ -1238,7 +1238,7 @@ void EhrenSampleStepper::step(int niter)
                 //cout << sd << endl;
                 
                 
-
+                /*
                 const Basis basis = sd.basis();
                 cout << "next" << endl;
                 const int np0 = basis.np(0);
@@ -1253,6 +1253,7 @@ void EhrenSampleStepper::step(int niter)
                 cout << tmpr[0] << endl;
 
                 wf.print_moments(i, 0, 0, 0);
+                */
                 double sp = tdmlwft->spread(i);
                 cout.setf(ios::fixed, ios::floatfield);
                 cout.setf(ios::right, ios::adjustfield);

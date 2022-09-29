@@ -70,6 +70,7 @@ int PlotCmd::action(int argc, char **argv)
   bool plot_atoms = false;
   bool plot_density = false;
   bool plot_wf = false;
+  bool moments = false;
   bool xyz = false;
   int nmin,nmax,nwf;
   string filename;
@@ -77,9 +78,18 @@ int PlotCmd::action(int argc, char **argv)
   if ( argc == 2 )
   {
     // plot filename : plot atoms in xyz format
-    plot_atoms = true;
-    xyz = true;
-    filename = argv[1];
+    if (strcmp(argv[1],"-moments")) {
+      moments = true;
+      nmin = 0;
+      nmax = 0;
+      nwf = 1;
+    }
+    else {
+      plot_atoms = true;
+      xyz = true;
+      filename = argv[1];
+    }
+    
   }
   else if ( argc == 3 )
   {
@@ -211,7 +221,7 @@ int PlotCmd::action(int argc, char **argv)
       }
     }
   } // plot_density
-  else if ( plot_wf )
+  else if ( plot_wf || moments)
   {
     // compute wf and store in tmpr
     if ( ctxt.oncoutpe() )
@@ -350,7 +360,7 @@ int PlotCmd::action(int argc, char **argv)
 
   // tmpr now contains the function to plot on task 0
 
-  if ( ctxt.oncoutpe() )
+  if ( ctxt.oncoutpe() && ! moments)
     os.open(filename.c_str());
 
   if ( plot_atoms )
@@ -436,8 +446,42 @@ int PlotCmd::action(int argc, char **argv)
       }
     }
   } // if plot_density || plot_wf
+  if (moments) {
+    D3vector a0 = s->atoms.cell().a(0);
+    D3vector a1 = s->atoms.cell().a(1);
+    D3vector a2 = s->atoms.cell().a(2);
+    D3vector v0 = a0/np0;
+    D3vector v1 = a1/np1;
+    D3vector v2 = a2/np2;
+    D3vector ori = -0.5 * (a0+a1+a2);
+    D3vector moment = 0*ori;
+    D3vector cub = v0+v1+v2;
+    double dr = cub[0] * cub[1] * cub[2];
 
-  os.close();
+    for ( int i = 0; i < np0; i++ )
+      {
+        const int ip = (i + np0/2 ) % np0;
+        for ( int j = 0; j < np1; j++ )
+        {
+          const int jp = (j + np1/2 ) % np1;
+          for ( int k = 0; k < np2; k++ )
+          {
+            const int kp = (k + np2/2 ) % np2;
+            double den = tmpr[ip+np0*(jp+np1*kp)];
+            D3vector pos = ori + jj*v0 + kk*v1+ii*v2;
+            moment += den *pos*dr;
+            
+            //os << setw(13) << ;
+            
+          }
+          
+        }
+      }
+    cout << "MLWF: " << moment << endl;  
+
+  }
+
+  //os.close();
 
   return 0;
 }
