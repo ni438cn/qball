@@ -54,7 +54,7 @@ using namespace std;
 int PlotCmd::action(int argc, char **argv)
 {
   string usage("  Use: plot [-density|-wf <nmin> [<nmax>]] filename");
-  cout << "actions" << endl;
+  //cout << "actions" << endl;
 
   // parse arguments
   // plot filename               : plot atoms in xyz format
@@ -85,7 +85,7 @@ int PlotCmd::action(int argc, char **argv)
       nmin = 0;
       nmax = 0;
       nwf = 1;
-      cout << "found -moments" << endl;
+      //cout << "found -moments" << endl;
     } else {
       plot_atoms = true;
       xyz = true;
@@ -102,7 +102,7 @@ int PlotCmd::action(int argc, char **argv)
       nmin = atoi(argv[2]) - 1;
       nmax = nmin;
       nwf = 1;
-      cout << "found -moments" << endl;
+      //cout << "found -moments" << endl;
     }
     if ( 0==strcmp(argv[1],"-density") )
     {
@@ -468,7 +468,7 @@ int PlotCmd::action(int argc, char **argv)
     cout << "cube vector " << v0 << endl;
     D3vector moment = 0*ori;
     D3vector cub = v0+v1+v2;
-    int nmoments = 3;
+    int nmoments = 5;
     
     vector<vector<double>>  momentarr(nmoments);
     for (int nm = 1; nm <= nmoments; nm++) {
