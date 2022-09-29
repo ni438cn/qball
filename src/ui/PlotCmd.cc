@@ -471,6 +471,12 @@ int PlotCmd::action(int argc, char **argv)
     int nmoments = 3;
     
     vector<vector<double>>  momentarr(nmoments);
+    for (int nm = 1; nm <= nmoments; nm++) {
+      int sizn = (int) (nm+2) * (nm+1) / 2;
+      cout << "nm = " << nm << "  sizn = " << sizn << endl;
+      vector<double> nmoment(sizn);
+      momentarr[nm-1] = nmoment;
+    }
     double dr = cub[0] * cub[1] * cub[2];
     cout << "cube area: " << dr<< endl; 
     double charge_total = 0;
@@ -490,10 +496,10 @@ int PlotCmd::action(int argc, char **argv)
             double yp = pos[1];
             double zp = pos[2];
             for (int nm = 1; nm <= nmoments; nm++) {
-              int sizn = (int) (nm+2) * (nm+1) / 2;
-              cout << "nm = " << nm << "  sizn = " << sizn << endl;
-              vector<double> nmoment(sizn);
-              momentarr[nm-1] = nmoment;
+              //int sizn = (int) (nm+2) * (nm+1) / 2;
+              //cout << "nm = " << nm << "  sizn = " << sizn << endl;
+              //vector<double> nmoment(sizn);
+              //momentarr[nm-1] = nmoment;
               int cm = 0;
               for (int im=nm; im >=0; im--) {
                 for (int jm=nm-im; jm >=0; jm--) {
@@ -503,7 +509,7 @@ int PlotCmd::action(int argc, char **argv)
                 }
 
               }
-              cout << momentarr << endl;
+              
             }
             
             charge_total += den * dr;
