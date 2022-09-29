@@ -931,6 +931,100 @@ void SlaterDet::compute_density(FourierTransform& ft,
   // cout << "SlaterDet: compute_density: rhosum time: " 
   //      << tm_rhosum.real() << endl;
 }
+void SlaterDet::compute_density(FourierTransform ft, 
+  double weight, double* rho) const {
+
+  //Timer tm_ft, tm_rhosum;
+  // compute density of the states residing on my column of ctxt_
+  assert(occ_.size() == c_.n());
+  vector<complex<double> > tmp(ft.np012loc());
+  
+  assert(basis_->cell().volume() > 0.0);
+  const double prefac = weight / basis_->cell().volume();  // weight = kpoint weight/total weightsum
+  const int np012loc = ft.np012loc();
+  
+  //ewd:  add result to rho instead of overwriting to allow for averaging over local kpoints
+  // (rho zeroed before SlaterDet.compute_density is called, i.e. in ChargeDensity.update_density)
+  //for ( int i = 0; i < np012loc; i++ )
+  //  rho[i] = 0.0;
+  
+  //ewd DEBUG:  transform one state at a time for both cases
+  //if ( basis_->real() ) {
+  if ( 1==0 && basis_->real() ) {
+     // transform two states at a time
+     for ( int lj=0; lj < c_.nblocks(); lj++ )
+     {
+        for ( int jj=0; jj < c_.nbs(lj); jj+=2)
+        {
+           // global state index
+           const int nn = c_.j(lj,jj);
+           const int norig = lj*c_.nb()+jj;
+           const double fac1 = prefac * occ_[nn];
+           const double fac2 = prefac * occ_[nn+1];
+      
+           if ( fac1 + fac2 > 0.0 ) {
+              //tm_ft.start();
+              ft.backward(c_.cvalptr(norig*c_.mloc()),c_.cvalptr((norig+1)*c_.mloc()),&tmp[0]);
+              //tm_ft.stop();
+              const double* psi = (double*) &tmp[0];
+              int ii = 0;
+              //tm_rhosum.start();
+              for ( int i = 0; i < np012loc; i++ ) {
+                 const double psi1 = psi[ii];
+                 const double psi2 = psi[ii+1];
+                 rho[i] += fac1 * psi1 * psi1 + fac2 * psi2 * psi2;
+                 ii++; ii++;
+              }
+              //tm_rhosum.start();
+           }
+        }
+     }
+     if ( nstloc() % 2 != 0 ) {
+        const int n = nstloc()-1;
+        // global n index
+        const int nn = ctxt_.mycol() * c_.nb() + n;
+        const double fac1 = prefac * occ_[nn];
+        
+        if ( fac1 > 0.0 ) {
+           ft.backward(c_.cvalptr(n*c_.mloc()),&tmp[0]);
+           const double* psi = (double*) &tmp[0];
+           int ii = 0;
+           for ( int i = 0; i < np012loc; i++ ) {
+              const double psi1 = psi[ii];
+              rho[i] += fac1 * psi1 * psi1;
+              ii++; ii++;
+           }
+        }
+     }
+  }
+  else {
+     // only one transform at a time
+     for ( int lj=0; lj < c_.nblocks(); lj++ )
+     {
+        for ( int jj=0; jj < c_.nbs(lj); jj++ )
+        {
+           // global state index
+           const int nn = c_.j(lj,jj);
+           const double fac = prefac * occ_[nn];
+           const int norig = lj*c_.nb()+jj;
+           if ( fac > 0.0 ) {
+              ft.backward(c_.cvalptr(norig*c_.mloc()),&tmp[0]);
+
+              //ewd DEBUG:  try threading this loop:
+#pragma omp parallel for
+              for ( int i = 0; i < np012loc; i++ )
+                 rho[i] += fac * (real(tmp[i])*real(tmp[i]) + imag(tmp[i])*imag(tmp[i]));
+              //rho[i] += fac * norm(tmp[i]);
+           }
+        }
+     }
+  }
+  
+  // cout << "SlaterDet: compute_density: ft_bwd time: " 
+  //      << tm_ft.real() << endl;
+  // cout << "SlaterDet: compute_density: rhosum time: " 
+  //      << tm_rhosum.real() << endl;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 void SlaterDet::compute_density(FourierTransform& ft, double weight, std::complex<double> * rho, const SlaterDet & sd2) const {
