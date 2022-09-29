@@ -1234,7 +1234,7 @@ void EhrenSampleStepper::step(int niter)
              {
                 D3vector ctr = tdmlwft->center(i);
                 cout << "My moments : " << endl;
-                ComplexMatrix& cm = sd->c();
+                ComplexMatrix& cm = (*sd)->c();
                 cout << sd << endl;
                 cout << cm << endl;
                 cout << "next" << endl;
