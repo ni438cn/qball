@@ -83,8 +83,8 @@ int PlotCmd::action(int argc, char **argv)
       nmin = 0;
       nmax = 0;
       nwf = 1;
-    }
-    else {
+      cout << "found -moments" << endl;
+    } else {
       plot_atoms = true;
       xyz = true;
       filename = argv[1];
@@ -447,6 +447,7 @@ int PlotCmd::action(int argc, char **argv)
     }
   } // if plot_density || plot_wf
   if (moments) {
+    cout << "called" << endl;
     D3vector a0 = s->atoms.cell().a(0);
     D3vector a1 = s->atoms.cell().a(1);
     D3vector a2 = s->atoms.cell().a(2);
