@@ -1235,11 +1235,12 @@ void EhrenSampleStepper::step(int niter)
                 D3vector ctr = tdmlwft->center(i);
                 cout << "My moments : " << endl;
                 
-                cout << sd << endl;
+                //cout << sd << endl;
                 
-                cout << "next" << endl;
+                
 
                 const Basis basis = sd.basis();
+                cout << "next" << endl;
                 const int np0 = basis.np(0);
                 const int np1 = basis.np(1);
                 const int np2 = basis.np(2);
