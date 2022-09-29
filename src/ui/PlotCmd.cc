@@ -469,8 +469,8 @@ int PlotCmd::action(int argc, char **argv)
     D3vector moment = 0*ori;
     D3vector cub = v0+v1+v2;
     int nmoments = 3;
-    int sizn = (int) (nmoments+2) * (nmoments+1) / 2;
-    vector<double> momentarr(sizn);
+    
+    vector<vector<double>>  momentarr(nmoments);
     double dr = cub[0] * cub[1] * cub[2];
     cout << "cube area: " << dr<< endl; 
     double charge_total = 0;
@@ -489,15 +489,21 @@ int PlotCmd::action(int argc, char **argv)
             double xp = pos[0];
             double yp = pos[1];
             double zp = pos[2];
-            int cm = 0;
-            for (int im=nmoments; im >=0; im--) {
-              for (int jm=nmoments-im; jm >=0; jm--) {
-                int km = nmoments - im - jm;
-                momentarr[cm] += pow(xp, im)*pow(yp, jm)*pow(zp, km)*dr*den;
-                cm++;
-              }
+            for (nm = 1; nm <= nmoments; nm++) {
+              int sizn = (int) (nm+2) * (nm+1) / 2;
+              vector<double> nmoment(sizn);
+              momentarr[nm-1] = nmoment;
+              int cm = 0;
+              for (int im=nm; im >=0; im--) {
+                for (int jm=nm-im; jm >=0; jm--) {
+                  int km = nm - im - jm;
+                  momentarr[nm-1][cm] += pow(xp, im)*pow(yp, jm)*pow(zp, km)*dr*den;
+                  cm++;
+                }
 
+              }
             }
+            
             charge_total += den * dr;
             moment += den *pos*dr;
             
@@ -512,8 +518,11 @@ int PlotCmd::action(int argc, char **argv)
     //momentarr = momentarr / charge_total;
     cout << "Adj: " << moment / charge_total << endl;
     cout << "Moments: 1";
-    for (int id = 0; id<sizn; id++){
-      cout << ", " << momentarr[id]/ charge_total;
+    for (int id = 1; id<nmoments; id++){
+      for (int jd = 0; jd < (id+2) * (id+1) / 2; jd++) {
+        cout << ", " << momentarr[id-1][jd]/ charge_total;
+      }
+      
     }
     cout << endl;
 
