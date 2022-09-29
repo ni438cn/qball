@@ -1234,6 +1234,10 @@ void EhrenSampleStepper::step(int niter)
              {
                 D3vector ctr = tdmlwft->center(i);
                 cout << "My moments : " << endl;
+                ComplexMatrix& cm = sd->c();
+                cout << sd << endl;
+                cout << cm << endl;
+                cout << "next" << endl;
                 wf.print_moments(i, 0, 0, 0);
                 double sp = tdmlwft->spread(i);
                 cout.setf(ios::fixed, ios::floatfield);
