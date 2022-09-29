@@ -518,7 +518,7 @@ int PlotCmd::action(int argc, char **argv)
     //momentarr = momentarr / charge_total;
     cout << "Adj: " << moment / charge_total << endl;
     cout << "Moments: 1";
-    for (int id = 1; id<nmoments; id++){
+    for (int id = 1; id<=nmoments; id++){
       for (int jd = 0; jd < (id+2) * (id+1) / 2; jd++) {
         cout << ", " << momentarr[id-1][jd]/ charge_total;
       }
