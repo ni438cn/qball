@@ -509,11 +509,11 @@ int PlotCmd::action(int argc, char **argv)
       }
     //cout << "MLWF: " << moment << endl;  
     cout << "charge: " << charge_total << endl;
-    momentarr = momentarr / charge_total;
+    //momentarr = momentarr / charge_total;
     cout << "Adj: " << moment / charge_total << endl;
     cout << "Moments: 1";
     for (int id = 0; id<sizn; id++){
-      cout << ", " << momentarr[id];
+      cout << ", " << momentarr[id]/ charge_total;
     }
     cout << endl;
 
