@@ -587,6 +587,7 @@ void FourierTransform::forward(complex<double>* f,
 ////////////////////////////////////////////////////////////////////////////////
 void FourierTransform::bwd(complex<double>* val)
 {
+  cout << "herey1" << endl;
   // transform zvec along z, transpose and transform along x,y, store
   // result in val
   // The columns of zvec[nvec_ * np2_] contain the full vectors
@@ -716,6 +717,7 @@ void FourierTransform::bwd(complex<double>* val)
   // scatter index array iunpack
   {
     const int len = np012loc() * 2;
+    cout << "herey" << endl;
     double* const pv = (double*) &val[0];
     #pragma omp parallel for
     for ( int i = 0; i < len; i++ )

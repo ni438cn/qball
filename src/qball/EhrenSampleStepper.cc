@@ -1248,7 +1248,7 @@ void EhrenSampleStepper::step(int niter)
                 cout << "debugger " << endl;
                 vector<double> tmpr(ft.np012());
                 cout << "did" << endl;
-                sd.compute_density(ft, 1.0, &(tmpr[0]), 0);
+                sd.compute_density(ft, 1.0, &tmpr[0], 0);
                 cout << "dided" << endl;
                 cout << tmpr[0] << endl;
 
