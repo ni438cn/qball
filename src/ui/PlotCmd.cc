@@ -283,7 +283,7 @@ int PlotCmd::action(int argc, char **argv)
           for ( int i = 0; i < ft.np012loc(); i++ ) {
             wftmpr[i] = sqrt(a[2*i]*a[2*i] + a[2*i+1]*a[2*i+1]);
             cout.precision(15);
-            cout << "AS: WF " << a[2*i] << "    " << a[2*i+1] << endl;
+            //cout << "AS: WF " << a[2*i] << "    " << a[2*i+1] << endl;
           }
         }
       }
