@@ -445,7 +445,7 @@ int PlotCmd::action(int argc, char **argv)
           for ( int k = 0; k < np2; k++ )
           {
             const int kp = (k + np2/2 ) % np2;
-            os << setw(13) << tmpr[ip+np0*(jp+np1*kp)];
+            os << setw(13) << pow(tmpr[ip+np0*(jp+np1*kp)], 2);
             if ( ( k % 6 ) == 5 )
               os << endl;
           }
