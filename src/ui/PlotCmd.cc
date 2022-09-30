@@ -495,6 +495,11 @@ int PlotCmd::action(int argc, char **argv)
             double xp = pos[0];
             double yp = pos[1];
             double zp = pos[2];
+            if (pow(xp, 2) + pow(yp, 2) + pow(zp, 2) > 17.0) {
+              den = 0.0;
+            } else{
+
+            
             for (int nm = 1; nm <= nmoments; nm++) {
               //int sizn = (int) (nm+2) * (nm+1) / 2;
               //cout << "nm = " << nm << "  sizn = " << sizn << endl;
@@ -514,6 +519,7 @@ int PlotCmd::action(int argc, char **argv)
             
             charge_total += den * dr;
             moment += den *pos*dr;
+            }
             
             //os << setw(13) << ;
             
