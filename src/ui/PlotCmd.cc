@@ -495,8 +495,8 @@ int PlotCmd::action(int argc, char **argv)
             double xp = pos[0];
             double yp = pos[1];
             double zp = pos[2];
-            if (pow(xp, 2) + pow(yp, 2) + pow(zp, 2) > 17.0) {
-              den = 0.0;
+            if (pow(xp, 2) + pow(yp, 2) + pow(zp, 2) > 200.0) {
+              den = 0.0; // sphere
             } else{
 
             
