@@ -1299,6 +1299,124 @@ void EhrenSampleStepper::step(int niter)
             << endl;
        cout << "</iteration>" << endl;
     }
+    //%%%%%%%%%%%% begin
+    SlaterDet *sdp = s_->wf.sd(0,0);//play with this
+    const Basis& basis = sdp->basis();
+    np0 = basis.np(0);
+    np1 = basis.np(1);
+    np2 = basis.np(2);
+    FourierTransform ft(basis,np0,np1,np2);
+    const ComplexMatrix& c = sdp->c();
+
+    vector<complex<double> > wftmp(ft.np012loc());
+    vector<double> wftmpr(ft.np012());
+    tmpr.resize(ft.np012());
+    for ( int n = 0; n <= 1; n++ )//nmin and nmax
+    {
+      assert(n < s->wf.nst());
+
+      // compute real-space wavefunction
+
+      // transform wf on ctxt.mycol() hosting state n
+      if ( c.pc(n) == c.context().mycol() )
+      {
+        //os << " state " << n << " is stored on column "
+        //     << ctxt_.mycol() << " local index: " << c_.y(n) << endl;
+        int nloc = c.y(n); // local index
+        ft.backward(c.cvalptr(c.mloc()*nloc),&wftmp[0]);
+
+        double *a = (double*) &wftmp[0];
+        if ( basis.real() )
+        {
+          // real function: plot wf
+          for ( int i = 0; i < ft.np012loc(); i++ )
+            wftmpr[i] = a[2*i];
+        }
+        else
+        {
+          // complex function: plot modulus
+          for ( int i = 0; i < ft.np012loc(); i++ ) {
+            wftmpr[i] = sqrt(a[2*i]*a[2*i] + a[2*i+1]*a[2*i+1]);
+            cout.precision(15);
+            cout << "AS: WF " << a[2*i] << "    " << a[2*i+1] << endl;
+          }
+        }
+      }
+
+      // send blocks of wftmpr to pe0
+      for ( int i = 0; i < c.context().nprow(); i++ )
+      {
+        bool iamsending = c.pc(n) == c.context().mycol() &&
+                          i == c.context().myrow();
+
+        // send size of wftmpr block
+        int size=-1;
+        if ( c.context().oncoutpe() )
+        {
+          if ( iamsending )
+          {
+            // sending to self, size not needed
+          }
+          else
+            c.context().irecv(1,1,&size,1,i,c.pc(n));
+        }
+        else
+        {
+          if ( iamsending )
+          {
+            size = ft.np012loc();
+            c.context().isend(1,1,&size,1,0,0);
+          }
+        }
+
+        // send wftmpr block
+        if ( c.context().oncoutpe() )
+        {
+          if ( iamsending )
+          {
+            // do nothing, data is already in place
+          }
+          else
+          {
+            int istart = ft.np0() * ft.np1() * ft.np2_first(i);
+            c.context().drecv(size,1,&wftmpr[istart],1,i,c.pc(n));
+          }
+        }
+        else
+        {
+          if ( iamsending )
+          {
+            c.context().dsend(size,1,&wftmpr[0],1,0,0);
+          }
+        }
+      }
+
+      // process the data on task 0
+      if ( c.context().oncoutpe() )
+      {
+        // wftmpr is now complete on task 0
+        if ( nwf == 1 )
+        {
+          // only one wf
+          for ( int i = 0; i < ft.np012(); i++ )
+          {
+            tmpr[i] = wftmpr[i];
+          }
+        }
+        else
+        {
+          // multiple wfs, accumulate square
+          for ( int i = 0; i < ft.np012(); i++ )
+          {
+            tmpr[i] += wftmpr[i]*wftmpr[i];
+          }
+        }
+      }
+    } // for n
+
+   
+
+
     // add moments here
     // ********************
     /*
