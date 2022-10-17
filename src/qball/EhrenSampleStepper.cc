@@ -1312,7 +1312,7 @@ void EhrenSampleStepper::step(int niter)
     vector<complex<double> > wftmp(ft.np012loc());
     vector<double> wftmpr(ft.np012());
     tmpr.resize(ft.np012());
-    for ( int n = 0; n <= 1; n++ )//nmin and nmax
+    for ( int n = 0; n <= sd.nst(); n++ )//nmin and nmax
     {
       //assert(n < s->wf.nst());
 
@@ -1339,7 +1339,7 @@ void EhrenSampleStepper::step(int niter)
           for ( int i = 0; i < ft.np012loc(); i++ ) {
             wftmpr[i] = sqrt(a[2*i]*a[2*i] + a[2*i+1]*a[2*i+1]);
             cout.precision(15);
-            cout << "AS: WF " << a[2*i] << "    " << a[2*i+1] << endl;
+            //cout << "AS: WF " << a[2*i] << "    " << a[2*i+1] << endl;
           }
         }
       }
@@ -1395,24 +1395,104 @@ void EhrenSampleStepper::step(int niter)
       // process the data on task 0
       if ( c.context().oncoutpe() )
       {
-        // wftmpr is now complete on task 0
-        if ( 1 == 1 )
-        {
-          // only one wf
-          for ( int i = 0; i < ft.np012(); i++ )
-          {
-            tmpr[i] = wftmpr[i];
-          }
-        }
-        else
-        {
-          // multiple wfs, accumulate square
-          for ( int i = 0; i < ft.np012(); i++ )
-          {
-            tmpr[i] += wftmpr[i]*wftmpr[i];
-          }
-        }
+         // wftmpr is now complete on task 0
+         
+            // only one wf
+         for ( int i = 0; i < ft.np012(); i++ )
+         {
+         tmpr[i] = wftmpr[i];
+         }
+
+         cout << "called" << endl;
+         D3vector a0 = s_.wf.cell().a(0);
+         D3vector a1 = s_.wf.cell().a(1);
+         D3vector a2 = s_.wf.cell().a(2);
+         D3vector v0 = a0/np0;
+         D3vector v1 = a1/np1;
+         D3vector v2 = a2/np2;
+         D3vector ori = -0.5 * (a0+a1+a2);
+         cout << "orgigin " << ori << endl;
+         cout << "cube vector " << v0 << endl;
+         D3vector moment = 0*ori;
+         D3vector cub = v0+v1+v2;
+         int nmoments = 5;
+         
+         vector<vector<double>>  momentarr(nmoments);
+         for (int nm = 1; nm <= nmoments; nm++) {
+            int sizn = (int) (nm+2) * (nm+1) / 2;
+            cout << "nm = " << nm << "  sizn = " << sizn << endl;
+            vector<double> nmoment(sizn);
+            momentarr[nm-1] = nmoment;
+         }
+         double dr = cub[0] * cub[1] * cub[2];
+         cout << "cube area: " << dr<< endl; 
+         double charge_total = 0;
+         for ( int i = 0; i < np0; i++ )
+            {
+            const int ip = (i + np0/2 ) % np0;
+            for ( int j = 0; j < np1; j++ )
+            {
+               const int jp = (j + np1/2 ) % np1;
+               for ( int k = 0; k < np2; k++ )
+               {
+                  const int kp = (k + np2/2 ) % np2;
+                  double den = (double) tmpr[ip+np0*(jp+np1*kp)];
+                  den = pow(den, 2);
+                  D3vector pos = ori + i*v0 + j*v1+k*v2;
+                  double xp = pos[0];
+                  double yp = pos[1];
+                  double zp = pos[2];
+                  if (pow(xp, 2) + pow(yp, 2) + pow(zp, 2) > 200.0) {
+                  den = 0.0; // sphere
+                  } else{
+
+                  
+                  for (int nm = 1; nm <= nmoments; nm++) {
+                  //int sizn = (int) (nm+2) * (nm+1) / 2;
+                  //cout << "nm = " << nm << "  sizn = " << sizn << endl;
+                  //vector<double> nmoment(sizn);
+                  //momentarr[nm-1] = nmoment;
+                  int cm = 0;
+                  for (int im=nm; im >=0; im--) {
+                     for (int jm=nm-im; jm >=0; jm--) {
+                        int km = nm - im - jm;
+                        momentarr[nm-1][cm] += pow(xp, im)*pow(yp, jm)*pow(zp, km)*dr*den;
+                        cm++;
+                     }
+
+                  }
+                  
+                  }
+                  
+                  charge_total += den * dr;
+                  moment += den *pos*dr;
+                  }
+                  
+                  //os << setw(13) << ;
+                  
+               }
+               
+            }
+            }
+         //cout << "MLWF: " << moment << endl;  
+         cout << "MLWF #" << n << endl;
+         cout << "charge: " << charge_total << endl;
+         //momentarr = momentarr / charge_total;
+         cout << "Adj: " << moment / charge_total << endl;
+         cout << "Moments: 1";
+         for (int id = 1; id<=nmoments; id++){
+            for (int jd = 0; jd < (id+2) * (id+1) / 2; jd++) {
+            cout << ", " << momentarr[id-1][jd]/ charge_total;
+            }
+            
+         }
+         cout << endl;
+
+
+        
       }
+      // print moments here
+
     } // for n
 
    
