@@ -1312,7 +1312,7 @@ void EhrenSampleStepper::step(int niter)
     vector<complex<double> > wftmp(ft.np012loc());
     vector<double> wftmpr(ft.np012());
     tmpr.resize(ft.np012());
-    for ( int n = 0; n <= sd.nst(); n++ )//nmin and nmax
+    for ( int n = 0; n <= sdp->nst(); n++ )//nmin and nmax
     {
       //assert(n < s->wf.nst());
 
