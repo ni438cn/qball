@@ -1300,11 +1300,12 @@ void EhrenSampleStepper::step(int niter)
        cout << "</iteration>" << endl;
     }
     //%%%%%%%%%%%% begin
-    SlaterDet *sdp = s_->wf.sd(0,0);//play with this
+    vector<double> tmpr;
+    SlaterDet *sdp = &(s_->wf.sd(0,0));//play with this
     const Basis& basis = sdp->basis();
-    np0 = basis.np(0);
-    np1 = basis.np(1);
-    np2 = basis.np(2);
+    int np0 = basis.np(0);
+    int np1 = basis.np(1);
+    int np2 = basis.np(2);
     FourierTransform ft(basis,np0,np1,np2);
     const ComplexMatrix& c = sdp->c();
 
@@ -1313,7 +1314,7 @@ void EhrenSampleStepper::step(int niter)
     tmpr.resize(ft.np012());
     for ( int n = 0; n <= 1; n++ )//nmin and nmax
     {
-      assert(n < s->wf.nst());
+      //assert(n < s->wf.nst());
 
       // compute real-space wavefunction
 
@@ -1395,7 +1396,7 @@ void EhrenSampleStepper::step(int niter)
       if ( c.context().oncoutpe() )
       {
         // wftmpr is now complete on task 0
-        if ( nwf == 1 )
+        if ( 1 == 1 )
         {
           // only one wf
           for ( int i = 0; i < ft.np012(); i++ )
