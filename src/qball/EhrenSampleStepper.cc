@@ -1301,7 +1301,7 @@ void EhrenSampleStepper::step(int niter)
     }
     //%%%%%%%%%%%% begin
     vector<double> tmpr;
-    SlaterDet *sdp = &(s_->wf.sd(0,0));//play with this
+    SlaterDet *sdp = wf.sd(0,0);//play with this
     const Basis& basis = sdp->basis();
     int np0 = basis.np(0);
     int np1 = basis.np(1);
