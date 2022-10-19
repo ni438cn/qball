@@ -1474,7 +1474,8 @@ void EhrenSampleStepper::step(int niter)
                
             }
             }
-         //cout << "MLWF: " << moment << endl;  
+         //cout << "MLWF: " << moment << endl; 
+         cout.precision(15); 
          cout << "MLWF #" << n << endl;
          cout << "charge: " << charge_total << endl;
          //momentarr = momentarr / charge_total;
