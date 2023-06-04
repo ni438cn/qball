@@ -1442,9 +1442,9 @@ void EhrenSampleStepper::step(int niter)
                   double xp = pos[0];
                   double yp = pos[1];
                   double zp = pos[2];
-                  if (pow(xp, 2) + pow(yp, 2) + pow(zp, 2) > 200.0) {
-                  den = 0.0; // sphere
-                  } else{
+                  //if (pow(xp, 2) + pow(yp, 2) + pow(zp, 2) > 200.0) {
+                  //den = 0.0; // sphere
+                  //} else{
 
                   
                   for (int nm = 1; nm <= nmoments; nm++) {
@@ -1466,7 +1466,7 @@ void EhrenSampleStepper::step(int niter)
                   
                   charge_total += den * dr;
                   moment += den *pos*dr;
-                  }
+                  //}
                   
                   //os << setw(13) << ;
                   
