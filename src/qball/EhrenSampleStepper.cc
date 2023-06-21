@@ -1427,6 +1427,7 @@ void EhrenSampleStepper::step(int niter)
          // sin cos moments
          vector<double> sincos(6);
          vector<double> seconds(12);
+         double pi = 3.141592653;
          double dr = cub[0] * cub[1] * cub[2];
          cout << "cube area: " << dr<< endl; 
          double charge_total = 0;
@@ -1518,18 +1519,18 @@ void EhrenSampleStepper::step(int niter)
          double b = -seconds[2]/charge_total +seconds[1]/charge_total;
          double c = -seconds[0]/charge_total +seconds[3]/charge_total;
          double d = seconds[2]/charge_total +seconds[1]/charge_total;
-         cout << ", " << pow((-2.0 * ori[0]) / (4*pi), 2) * ( ln(pow(a, 2) + pow(b, 2)) - ln(pow(c, 2) + pow(d, 2)));
+         cout << ", " << pow((-2.0 * ori[0]) / (4*pi), 2) * ( log(pow(a, 2) + pow(b, 2)) - log(pow(c, 2) + pow(d, 2)));
          a = seconds[4]/charge_total +seconds[7]/charge_total;
          b = -seconds[6]/charge_total +seconds[5]/charge_total;
          c = -seconds[4]/charge_total +seconds[7]/charge_total;
          d = seconds[6]/charge_total +seconds[5]/charge_total;
-         cout << ", " << pow((-2.0 * ori[0]) / (4*pi), 2) * ( ln(pow(a, 2) + pow(b, 2)) - ln(pow(c, 2) + pow(d, 2)));
+         cout << ", " << pow((-2.0 * ori[0]) / (4*pi), 2) * ( log(pow(a, 2) + pow(b, 2)) - log(pow(c, 2) + pow(d, 2)));
          cout << ", " << pow((-2.0 * ori[1]) / (2*pi), 2) * (1 - pow(sincos[2]/charge_total, 2) - pow(sincos[3]/charge_total, 2) );
          a = seconds[8]/charge_total +seconds[11]/charge_total;
          b = -seconds[10]/charge_total +seconds[9]/charge_total;
          c = -seconds[8]/charge_total +seconds[11]/charge_total;
          d = seconds[10]/charge_total +seconds[9]/charge_total;
-         cout << ", " << pow((-2.0 * ori[1]) / (4*pi), 2) * ( ln(pow(a, 2) + pow(b, 2)) - ln(pow(c, 2) + pow(d, 2)));
+         cout << ", " << pow((-2.0 * ori[1]) / (4*pi), 2) * ( log(pow(a, 2) + pow(b, 2)) - log(pow(c, 2) + pow(d, 2)));
          cout << ", " << pow((-2.0 * ori[2]) / (2*pi), 2) * (1 - pow(sincos[4]/charge_total, 2) - pow(sincos[5]/charge_total, 2) );
          cout << endl;
 
