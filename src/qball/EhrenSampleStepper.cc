@@ -1415,7 +1415,7 @@ void EhrenSampleStepper::step(int niter)
          cout << "cube vector " << v0 << endl;
          D3vector moment = 0*ori;
          D3vector cub = v0+v1+v2;
-         int nmoments = 5;
+         int nmoments = 2;
          
          vector<vector<double>>  momentarr(nmoments);
          for (int nm = 1; nm <= nmoments; nm++) {
@@ -1424,6 +1424,9 @@ void EhrenSampleStepper::step(int niter)
             vector<double> nmoment(sizn);
             momentarr[nm-1] = nmoment;
          }
+         // sin cos moments
+         vector<double> sincos(6);
+         vector<double> seconds(12);
          double dr = cub[0] * cub[1] * cub[2];
          cout << "cube area: " << dr<< endl; 
          double charge_total = 0;
@@ -1445,8 +1448,26 @@ void EhrenSampleStepper::step(int niter)
                   //if (pow(xp, 2) + pow(yp, 2) + pow(zp, 2) > 200.0) {
                   //den = 0.0; // sphere
                   //} else{
+                  for (int r =0;r<3; r++) {
+                     sincos[r*2] += sin(2.0*pi / (-2.0 * ori[r]) * pos[r])*den * dr;
+                     sincos[r*2+1] += cos(2.0*pi / (-2.0 * ori[r]) * pos[r])*den * dr;
+                     
+                  }
+                  seconds[0] += sin(2.0*pi / (-2.0 * ori[0]) * xp)*sin(2.0*pi / (-2.0 * ori[1]) * yp)*den * dr;
+                  seconds[1] += sin(2.0*pi / (-2.0 * ori[0]) * xp)*cos(2.0*pi / (-2.0 * ori[1]) * yp)*den * dr;
+                  seconds[2] += cos(2.0*pi / (-2.0 * ori[0]) * xp)*sin(2.0*pi / (-2.0 * ori[1]) * yp)*den * dr;
+                  seconds[3] += cos(2.0*pi / (-2.0 * ori[0]) * xp)*cos(2.0*pi / (-2.0 * ori[1]) * yp)*den * dr;
 
-                  
+                  seconds[4] += sin(2.0*pi / (-2.0 * ori[0]) * xp)*sin(2.0*pi / (-2.0 * ori[2]) * zp)*den * dr;
+                  seconds[5] += sin(2.0*pi / (-2.0 * ori[0]) * xp)*cos(2.0*pi / (-2.0 * ori[2]) * zp)*den * dr;
+                  seconds[6] += cos(2.0*pi / (-2.0 * ori[0]) * xp)*sin(2.0*pi / (-2.0 * ori[2]) * zp)*den * dr;
+                  seconds[7] += cos(2.0*pi / (-2.0 * ori[0]) * xp)*cos(2.0*pi / (-2.0 * ori[2]) * zp)*den * dr;
+
+                  seconds[8] += sin(2.0*pi / (-2.0 * ori[1]) * yp)*sin(2.0*pi / (-2.0 * ori[2]) * zp)*den * dr;
+                  seconds[9] += sin(2.0*pi / (-2.0 * ori[1]) * yp)*cos(2.0*pi / (-2.0 * ori[2]) * zp)*den * dr;
+                  seconds[10] += cos(2.0*pi / (-2.0 * ori[1]) * yp)*sin(2.0*pi / (-2.0 * ori[2]) * zp)*den * dr;
+                  seconds[11] += cos(2.0*pi / (-2.0 * ori[1]) * yp)*cos(2.0*pi / (-2.0 * ori[2]) * zp)*den * dr;
+
                   for (int nm = 1; nm <= nmoments; nm++) {
                   //int sizn = (int) (nm+2) * (nm+1) / 2;
                   //cout << "nm = " << nm << "  sizn = " << sizn << endl;
@@ -1480,7 +1501,7 @@ void EhrenSampleStepper::step(int niter)
          cout << "charge: " << charge_total << endl;
          //momentarr = momentarr / charge_total;
          cout << "Adj: " << moment / charge_total << endl;
-         cout << "Moments: 1";
+         cout << "Moments (Cartesian): 1";
          for (int id = 1; id<=nmoments; id++){
             for (int jd = 0; jd < (id+2) * (id+1) / 2; jd++) {
             cout << ", " << momentarr[id-1][jd]/ charge_total;
@@ -1488,7 +1509,29 @@ void EhrenSampleStepper::step(int niter)
             
          }
          cout << endl;
-
+         cout << "Sin Cos Moments: 1";
+         cout << ", " << (-2.0 * ori[0]) / (2*pi) * atan2(sincos[0]/charge_total, sincos[1]/charge_total);
+         cout << ", " << (-2.0 * ori[1]) / (2*pi) * atan2(sincos[2]/charge_total, sincos[3]/charge_total);
+         cout << ", " << (-2.0 * ori[2]) / (2*pi) * atan2(sincos[4]/charge_total, sincos[5]/charge_total);
+         cout << ", " << pow((-2.0 * ori[0]) / (2*pi), 2) * (1 - pow(sincos[0]/charge_total, 2) - pow(sincos[1]/charge_total, 2) );
+         double a = seconds[0]/charge_total +seconds[3]/charge_total;
+         double b = -seconds[2]/charge_total +seconds[1]/charge_total;
+         double c = -seconds[0]/charge_total +seconds[3]/charge_total;
+         double d = seconds[2]/charge_total +seconds[1]/charge_total;
+         cout << ", " << pow((-2.0 * ori[0]) / (4*pi), 2) * ( ln(pow(a, 2) + pow(b, 2)) - ln(pow(c, 2) + pow(d, 2)));
+         a = seconds[4]/charge_total +seconds[7]/charge_total;
+         b = -seconds[6]/charge_total +seconds[5]/charge_total;
+         c = -seconds[4]/charge_total +seconds[7]/charge_total;
+         d = seconds[6]/charge_total +seconds[5]/charge_total;
+         cout << ", " << pow((-2.0 * ori[0]) / (4*pi), 2) * ( ln(pow(a, 2) + pow(b, 2)) - ln(pow(c, 2) + pow(d, 2)));
+         cout << ", " << pow((-2.0 * ori[1]) / (2*pi), 2) * (1 - pow(sincos[2]/charge_total, 2) - pow(sincos[3]/charge_total, 2) );
+         a = seconds[8]/charge_total +seconds[11]/charge_total;
+         b = -seconds[10]/charge_total +seconds[9]/charge_total;
+         c = -seconds[8]/charge_total +seconds[11]/charge_total;
+         d = seconds[10]/charge_total +seconds[9]/charge_total;
+         cout << ", " << pow((-2.0 * ori[1]) / (4*pi), 2) * ( ln(pow(a, 2) + pow(b, 2)) - ln(pow(c, 2) + pow(d, 2)));
+         cout << ", " << pow((-2.0 * ori[2]) / (2*pi), 2) * (1 - pow(sincos[4]/charge_total, 2) - pow(sincos[5]/charge_total, 2) );
+         cout << endl;
 
         
       }
