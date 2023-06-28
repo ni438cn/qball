@@ -1441,6 +1441,10 @@ void EhrenSampleStepper::step(int niter)
                {
                   const int kp = (k + np2/2 ) % np2;
                   double den = (double) tmpr[ip+np0*(jp+np1*kp)];
+                  if (isinf(den)) {
+                     cout << "Inf error" << endl;
+                     den = 0;
+                  }
                   den = pow(den, 2);
                   D3vector pos = ori + i*v0 + j*v1+k*v2;
                   double xp = pos[0];
@@ -1501,6 +1505,7 @@ void EhrenSampleStepper::step(int niter)
          cout << "MLWF #" << n << endl;
          cout << "charge: " << charge_total << endl;
          //momentarr = momentarr / charge_total;
+         cout << "Before Adj: " << moment << endl;
          cout << "Adj: " << moment / charge_total << endl;
          cout << "Moments (Cartesian): 1";
          for (int id = 1; id<=nmoments; id++){
