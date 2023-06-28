@@ -1441,7 +1441,7 @@ void EhrenSampleStepper::step(int niter)
                {
                   const int kp = (k + np2/2 ) % np2;
                   double den = (double) tmpr[ip+np0*(jp+np1*kp)];
-                  if (isinf(den)) {
+                  if (std::isinf(den)) {
                      cout << "Inf error" << endl;
                      den = 0;
                   }
