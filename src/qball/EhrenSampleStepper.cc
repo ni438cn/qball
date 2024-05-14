@@ -1415,14 +1415,17 @@ void EhrenSampleStepper::step(int niter)
          cout << "cube vector " << v0 << endl;
          D3vector moment = 0*ori;
          D3vector cub = v0+v1+v2;
-         int nmoments = 2;
+         int nmoments = 3;
          
          vector<vector<double>>  momentarr(nmoments);
+         vector<vector<double>>  freqs(nmoments);
          for (int nm = 1; nm <= nmoments; nm++) {
             int sizn = (int) (nm+2) * (nm+1) / 2;
             cout << "nm = " << nm << "  sizn = " << sizn << endl;
             vector<double> nmoment(sizn);
             momentarr[nm-1] = nmoment;
+            vector<double> nf(sizn*2);
+            freqs[nm-1] = nf;
          }
          // sin cos moments
          vector<double> sincos(6);
@@ -1483,6 +1486,9 @@ void EhrenSampleStepper::step(int niter)
                      for (int jm=nm-im; jm >=0; jm--) {
                         int km = nm - im - jm;
                         momentarr[nm-1][cm] += pow(xp, im)*pow(yp, jm)*pow(zp, km)*dr*den;
+                        freqs[nm-1][2*cm] += sin(pi / (-1*ori[0]) * xp*im+ pi / (-1*ori[1]) * yp*jm + pi / (-1*ori[2]) * zp*km)*den*dr;
+                        freqs[nm-1][2*cm+1] += cos(pi / (-1*ori[0]) * xp*im+ pi / (-1*ori[1]) * yp*jm + pi / (-1*ori[2]) * zp*km)*den*dr;
+
                         cm++;
                      }
 
@@ -1511,6 +1517,15 @@ void EhrenSampleStepper::step(int niter)
          for (int id = 1; id<=nmoments; id++){
             for (int jd = 0; jd < (id+2) * (id+1) / 2; jd++) {
             cout << ", " << momentarr[id-1][jd]/ charge_total;
+            }
+            
+         }
+         cout << endl;
+         cout << "Freqs: 1";
+         for (int id = 1; id<=nmoments; id++){
+            for (int jd = 0; jd < (id+2) * (id+1) / 2; jd++) {
+            cout << ", " << freqs[id-1][2*jd]/ charge_total;
+            cout << ", " << freqs[id-1][2*jd+1]/ charge_total;
             }
             
          }
